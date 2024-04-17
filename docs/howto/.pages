@@ -1,0 +1,12 @@
+nav:
+    - index.md
+    - archipelago.md
+    - vs-code.md
+    - writing.md
+    - validate.md
+    - add-input.md
+    - identity.md
+    - session.md
+    - return-content.md
+    - voltmxresponse.md
+    - testable.md

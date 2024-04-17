@@ -1,0 +1,63 @@
+{
+    "name": "voltscript-voltmx-middleware",
+    "description": "APIs and SDKs for Volt MX Foundry",
+    "displayName": "HCL Volt MX Foundry SDKs",
+    "license": "Apache 2.0",
+    "publisher": "HCL America, Inc.",
+    "authors": [
+        "Paul Withers"
+    ],
+    "library": "voltscript-voltmx-middleware",
+    "version":"1.0.0",
+    "sourceDir": "src",
+    "testDir": "test",
+    "libsDir": "libs",
+    "vsesDir": "vses",
+    "mainScripts": [
+        "VoltMXObjects.vss"
+    ],
+    "unitTestScripts": [],
+    "integrationTestScripts": [],
+    "repositories": [
+        {
+            "id": "volt-mx-marketplace",
+            "type": "marketplace",
+            "url": "https://community.demo-hclvoltmx.com/marketplace/asset"
+        },
+        {
+            "id": "hcl-github",
+            "type": "github",
+            "url": "https://api.github.com/repos/hcl-tech-software"
+        }
+    ],
+    "dependencies": [
+        {
+            "library": "voltscript-collections",
+            "version": "1.0.2",
+            "module": "VoltScriptCollections.vss",
+            "repository": "hcl-github"
+        }
+    ],
+    "testDependencies": [
+        {
+            "library": "voltscript-testing",
+            "module": "VoltScriptTesting.vss",
+            "repository": "hcl-github",
+            "version": "1.0.1"
+        }
+    ],
+    "vseDependencies": {
+        "JsonVSE": {
+            "library": "25265",
+            "version": "1.0.1",
+            "module": "25877/20841",
+            "repository": "volt-mx-marketplace"
+        },
+        "ContextVSE": {
+            "library": "25276",
+            "version": "1.0.1",
+            "module": "25880/20848",
+            "repository": "volt-mx-marketplace"
+        }
+    }
+}

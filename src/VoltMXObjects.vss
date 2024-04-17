@@ -1,0 +1,983 @@
+%REM
+	Library VoltMXObjects 
+
+%END REM
+
+'{{VSID_COPYRIGHT_NOTICE_
+%REM
+    Copyright HCL America, Inc. 1999, 2023
+
+    Licensed under the Apache License, Version 2.0 (the "License");
+    you may not use this file except in compliance with the License.
+    You may obtain a copy of the License at
+
+        http://www.apache.org/licenses/LICENSE-2.0
+
+    Unless required by applicable law or agreed to in writing, software
+    distributed under the License is distributed on an "AS IS" BASIS,
+    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+    See the License for the specific language governing permissions and
+    limitations under the License.
+%END REM
+'}}
+
+Option Declare
+Option Public
+Use "../libs/VoltScriptCollections"
+
+UseVSE "*JsonVSE"
+
+
+
+	'{{SETI_AUTHOR_CODE_VoltMxLogger_Private_Methods
+	'}} 
+'{{SETI_AUTHOR_CODE_VoltMXObjects_Private_Constants
+Private Const IS_PREPROCESSOR_PARAM = "isPreprocessor"
+Private Const RESULT_PARAM = "result"
+Private Const SESSION_PARAM = "session"
+Private Const INPUT_PARAMS_PARAM = "serviceInputParams"
+Private Const REQUEST_PARAM = "request"
+Private Const RESPONSE_PARAM = "response"
+Private Const SESSION_KCOOKIE = "KCookie"
+Private Const OPSTATUS_PARAM = "opstatus"
+Private Const HTTPSTATUSCODE_PARAM = "httpStatusCode"
+Private Const PROJECT_DIR_PARAM = "projectDir"
+Private Const IDENTITY_PARAM = "identity"
+'}}
+
+'{{Variables
+Public VoltMxSession As VoltMxSessionObject 	 ' Instance of VoltMxSessionObject parsed from Foundry input by extractObjects.
+Public VoltMxRequest As VoltMxRequestObject 	 ' Instance of VoltMxRequestObject parsed from Foundry input by extractObjects.
+Public VoltMxResponse As VoltMxResponseObject 	 ' Instance of VoltMxResponseObject parsed from Foundry input by extractObjects.
+Public VoltMxResult As VoltMxResultObject 	 ' Instance of VoltMxResultObject parsed from Foundry input by extractObjects.
+Public VoltMxLogger As VoltMxLoggerObject 	 ' Instance of VoltMxLogger object created by extractObjects. This is used to pass debug messages for Java logging.
+Public PROJECT_DIR As String 	 ' Main directory of the project, required because CurDir returns the VoltScript program directory. Use this to retrieve resource files within the project directory, and set manually for unit tests.
+'}}
+
+'{{SETI_AUTHOR_CODE_VoltMXObjects_Private_Variables
+Private passedCtx as New JsonObject()
+'}}
+
+'{{SETI_AUTHOR_CODE_VoltMXObjects_Private_Types
+'}}
+
+'{{SETI_AUTHOR_CODE_VoltMXObjects_Private_Properties
+'}}
+
+
+
+%REM
+	Class HttpCookie 
+	Class to hold properties of a HTTP Cookie for easy handling. Not implemented yet.
+ 
+%END REM
+Public Class HttpCookie 
+
+	'{{Variables
+	Public name As String 	 ' Name element of the cookie.
+	Public value As String 	 ' Value element of the cookie.
+	Public expiryDate As String 	 ' Expiry date element of the cookie.
+	Public persistent As Boolean 	 ' Boolean value for whether or not the cookie persists.
+	Public domain As String 	 ' Domain element of the cookie.
+	Public path As String 	 ' Path element of the cookie.
+	Public isSecure As Boolean 	 ' Whether or not the cookie is secur.
+	'}}
+
+	'{{SETI_AUTHOR_CODE_HttpCookie_Private_Variables
+	'}}
+
+	'{{SETI_AUTHOR_CODE_HttpCookie_Private_Properties
+	'}}
+
+
+	%REM
+		Sub New 
+
+	%END REM
+	Public Sub New() 
+		'{{SETI_AUTHOR_CODE_New_implementation
+		'}}
+
+	End Sub
+
+	'{{SETI_AUTHOR_CODE_HttpCookie_Private_Methods
+	'}} 
+
+End Class 
+
+
+%REM
+	Class VoltMxLoggerObject 
+	Class for passing debug messages back to Foundry's Java logger.
+ 
+%END REM
+Public Class VoltMxLoggerObject 
+
+	'{{SETI_AUTHOR_CODE_VoltMxLoggerObject_Private_Variables
+    Private result as VoltMxResultObject
+	'}}
+
+	'{{SETI_AUTHOR_CODE_VoltMxLoggerObject_Private_Properties
+	'}}
+
+
+	%REM
+		Sub New 
+		Constructor. This is automatically called during extractObjects() and should not be run manually.
+	
+		@param	result 	Result object that will be passed back to Foundry
+
+	%END REM
+	Public Sub New(result As VoltMxResultObject) 
+		'{{SETI_AUTHOR_CODE_New_implementation
+        Set Me.result = result
+		'}}
+
+	End Sub
+
+
+	%REM
+		Sub debug 
+		Create a debug message. This proxies the addDebugMessage() method in VoltMxResult objcet. The message will be added to Volt MX's Java logs, if setting is changed to output debug messages.
+	
+		@param	message 	Message to debug
+
+	%END REM
+	Public Sub debug(message As String) 
+		'{{SETI_AUTHOR_CODE_debug_implementation
+        Call Me.result.addDebugMessage(message)
+		'}}
+
+	End Sub
+
+	'{{SETI_AUTHOR_CODE_VoltMxLoggerObject_Private_Methods
+	'}} 
+
+End Class 
+
+
+%REM
+	Class VoltMxRequestObject 
+	Class for interacting with Foundry request.
+ 
+%END REM
+Public Class VoltMxRequestObject 
+
+	'{{SETI_AUTHOR_CODE_VoltMxRequestObject_Private_Variables
+    Private result as VoltMxResultObject
+    Private inputParams_ as Map
+    Private requestParams_ as Map
+    Private headers_ as Map
+    Private identity_ as String
+	'}}
+
+	'{{SETI_AUTHOR_CODE_VoltMxRequestObject_Private_Properties
+	'}}
+
+
+	%REM
+		Sub New 
+		Constructor. This is automatically called during extractObjects() and should not be run manually.
+	
+		@param	result 	Result object that will be passed back to Foundry
+
+		@param	serviceInputParams 	JsonObject of input parameters for the integration service
+
+		@param	identityParam 	JsonObject of identity parameter (or Nothing) for the integration service
+
+		@param	jsonObj 	JsonObject containing the Foundry request
+
+	%END REM
+	Public Sub New(result As VoltMxResultObject, serviceInputParams As JsonObject, identityParam As JsonObject, jsonObj As JsonObject) 
+		'{{SETI_AUTHOR_CODE_New_implementation
+		Dim parent as JsonObject
+        Try
+            Set Me.result = result
+            Set inputParams_ = New Map("SCALAR", Nothing, False)
+            Call inputParams_.fromJson(serviceInputParams)
+            Set requestParams_ = new Map("SCALAR", Nothing, False)
+            If (jsonObj.isChild("params")) Then
+                Call requestParams_.fromJson(jsonObj.getChild("params"))
+            End If
+            Set headers_ = new Map("SCALAR", Nothing, False)
+            If (jsonObj.isChild("headers")) Then
+                Call headers_.fromJson(jsonObj.getChild("headers"))
+            End If
+            If (Not identityParam is Nothing) Then
+                identity_ = identityParam.scalarValue
+            End If
+        Catch
+            Error Err, getErrorMsg("VOLTMXREQUEST_NEW")
+        End Try
+		'}}
+
+	End Sub
+
+
+	%REM
+		Sub addInputParam 
+		Adds an input parameter for the Foundry integration service. This proxies the corresponding function in VotMxResult object. Only relevant for preprocessors.
+	
+		@param	key 	Key for the input parameter
+
+		@param	value 	Value for the input parameter. This should be a scalar.
+
+		@throws	Adding input parameters is only relevant for PreProcessors 	
+	%END REM
+	Public Sub addInputParam(key As String, value As Variant) 
+		'{{SETI_AUTHOR_CODE_addInputParam_implementation
+        Call Me.result.addInputParam(key, value)
+		'}}
+
+	End Sub
+
+
+	%REM
+		Sub addRequestParam 
+		Adds a request parameter to the Foundry request. This proxies the corresponding method in VoltMxResult. Only relevant for preprocessors.
+	
+		@param	key 	Key for the request parameter
+
+		@param	value 	Value for the request parameter
+
+		@throws	Adding request parameters is only relevant for PreProcessors 	
+	%END REM
+	Public Sub addRequestParam(key As String, value As Variant) 
+		'{{SETI_AUTHOR_CODE_addRequestParam_implementation
+        Call Me.result.addRequestParam(key, value)
+		'}}
+
+	End Sub
+
+
+	%REM
+		Function getInputParam 
+		Gets an input parameter passed to Foundry.
+	
+		@param	key 	Key for the input parameter. Keys are case-sensitive
+
+		@return	Variant
+	%END REM
+	Public Function getInputParam(key As String) As Variant 
+		'{{SETI_AUTHOR_CODE_getInputParam_implementation
+        Return wrapEmpty(Me.inputParams_.getValueRawByKey(key))
+		'}}
+
+	End Function
+
+
+	%REM
+		Function getHeaderParam 
+		Gets a header parameter from the Foundry request.
+	
+		@param	key 	Key for the header parameter
+
+		@return	Variant
+	%END REM
+	Public Function getHeaderParam(key As String) As Variant 
+		'{{SETI_AUTHOR_CODE_getHeaderParam_implementation
+        Return wrapEmpty(Me.headers_.getValueRawByKey(key))
+		'}}
+
+	End Function
+
+
+	%REM
+		Function getRequestParam 
+		Gets a Foundry request parameter. These are parameters like appID, used for internal Foundry processing. This is not for input parameters defined in the Foundry integration service mapping.
+	
+		@param	key 	Key for the request parameter. Keys are case-sensitive
+
+		@return	Variant
+	%END REM
+	Public Function getRequestParam(key As String) As Variant 
+		'{{SETI_AUTHOR_CODE_getRequestParam_implementation
+        Return wrapEmpty(Me.requestParams_.getValueRawByKey(key))
+		'}}
+
+	End Function
+
+
+	%REM
+		Function getIdentityParam 
+		Gets a parameter from the JWT token for an identity service associated with this integration service, or an empty string if no identity service is assigned to this integration service.
+	
+		@return	String
+	%END REM
+	Public Function getIdentityParam() As String 
+		'{{SETI_AUTHOR_CODE_getIdentityParam_implementation
+        Return me.identity_
+		'}}
+
+	End Function
+
+	'{{SETI_AUTHOR_CODE_VoltMxRequestObject_Private_Methods
+	'}} 
+
+End Class 
+
+
+%REM
+	Class VoltMxResponseObject 
+	Class for interacting with Volt MX response.
+ 
+%END REM
+Public Class VoltMxResponseObject 
+
+	'{{SETI_AUTHOR_CODE_VoltMxResponseObject_Private_Variables
+    Private result as VoltMxResultObject
+    Private statusCode as Integer
+    Private headers_ as Map
+    Private deviceHeaders_ as Map
+	'}}
+
+	'{{SETI_AUTHOR_CODE_VoltMxResponseObject_Private_Properties
+	'}}
+
+
+	%REM
+		Sub New 
+		Constructor
+	
+		@param	result 	Result object that will be passed back to Foundry
+
+		@param	jsonObj 	JsonObject containing the Foundry response object
+
+	%END REM
+	Public Sub New(result As VoltMxResultObject, jsonObj As JsonObject) 
+		'{{SETI_AUTHOR_CODE_New_implementation
+        Set Me.result = result
+
+        Try
+            Set Me.result = result
+            Set headers_ = new Map("SCALAR", Nothing, False)
+            If (jsonObj.isChild("headers")) Then
+                Call headers_.fromJson(jsonObj.getChild("headers"))
+            End If
+            Set deviceHeaders_ = new Map("SCALAR", Nothing, False)
+            If (jsonObj.isChild("deviceHeaders")) Then
+                Call deviceHeaders_.fromJson(jsonObj.getChild("deviceHeaders"))
+            End If
+            If (jsonObj.isChild("statusCode")) Then
+                statusCode = jsonObj.getChild("statusCode").scalarValue
+            End If
+        Catch
+            Error Err, getErrorMsg("VOLTMXRESPONSE_NEW")
+        End Try
+		'}}
+
+	End Sub
+
+
+	%REM
+		Sub addHeaderParam 
+		Adds a header param to the Foundry response. This proxies the corresponding method in VoltMxResult object.
+	
+		@param	key 	Key for the Foundry response parameter
+
+		@param	value 	Value for the Foundry response parameter
+
+		@throws	Adding header parameters is not relevant for PreProcessors 	
+	%END REM
+	Public Sub addHeaderParam(key As String, value As Variant) 
+		'{{SETI_AUTHOR_CODE_addHeaderParam_implementation
+        Call Me.result.addHeaderParam(key, value)
+		'}}
+
+	End Sub
+
+
+	%REM
+		Sub addDeviceHeaderParam 
+		Adds a device header parameter for the Foundry response. This proxies the corresponding method in VoltMxResult object.
+	
+		@param	key 	Key of the device header parameter
+
+		@param	value 	Value of the device header parameter
+
+		@throws	Adding response device header parameters is not relevant for PreProcessors 	
+	%END REM
+	Public Sub addDeviceHeaderParam(key As String, value As Variant) 
+		'{{SETI_AUTHOR_CODE_addDeviceHeaderParam_implementation
+        Call Me.result.addDeviceHeaderParam(key, value)
+		'}}
+
+	End Sub
+
+
+	%REM
+		Function getHeaderParam 
+		Gets a header parameter from the Foundry response. This is only relevant for postprocessors.
+	
+		@param	key 	Key for the header parameter
+
+		@return	Variant
+	%END REM
+	Public Function getHeaderParam(key As String) As Variant 
+		'{{SETI_AUTHOR_CODE_getHeaderParam_implementation
+        Return wrapEmpty(Me.headers_.getValueRawByKey(key))
+		'}}
+
+	End Function
+
+
+	%REM
+		Function getDeviceHeaderParam 
+		Gets a device header parameter for the Foundry response.
+	
+		@param	key 	Key for the device header parameter
+
+		@return	Variant
+	%END REM
+	Public Function getDeviceHeaderParam(key As String) As Variant 
+		'{{SETI_AUTHOR_CODE_getDeviceHeaderParam_implementation
+        Return wrapEmpty(Me.deviceHeaders_.getValueRawByKey(key))
+		'}}
+
+	End Function
+
+
+	%REM
+		Function getStatusCode 
+		Gets the status code of the Foundry response. This is only relevant for postprocessors.
+	
+		@return	Integer
+	%END REM
+	Public Function getStatusCode() As Integer 
+		'{{SETI_AUTHOR_CODE_getStatusCode_implementation
+        Return me.statusCode
+		'}}
+
+	End Function
+
+	'{{SETI_AUTHOR_CODE_VoltMxResponseObject_Private_Methods
+	'}} 
+
+End Class 
+
+
+%REM
+	Class VoltMxResultObject 
+	Class for passing content back to Foundry and manipulating results from an integration service in its postprocessor.
+ 
+%END REM
+Public Class VoltMxResultObject 
+
+	'{{SETI_AUTHOR_CODE_VoltMxResultObject_Private_Variables
+    Private opstatus_ as Integer
+    Private httpStatusCode_ as Integer
+    Private isPreProcessor as Boolean
+    Private requestParams_ as JsonObject
+    Private inputParams_ as JsonObject
+    Private headerParams_ as JsonObject
+    Private deviceHeaderParams_ as JsonObject
+    Private sessionAttributes_ as JsonObject
+    Private debugMessages_ as JsonObject
+    Private result_ as JsonObject
+    Private error_ as String
+	'}}
+
+
+	%REM
+		Property result 
+		JsonObject that will be outputted from the integration service
+	
+		@return	JsonObject
+	%END REM
+	Public Property Get result As JsonObject 
+		'{{SETI_AUTHOR_CODE_Get.result_implementation
+        Return Me.result_
+		'}}
+
+	End Property
+
+
+	%REM
+		Property opstatus 
+		Opstatus that will be returned from the integration service.
+	
+		@return	Integer
+	%END REM
+	Public Property Get opstatus As Integer 
+		'{{SETI_AUTHOR_CODE_Get.opstatus_implementation
+        Return Me.opstatus_
+		'}}
+
+	End Property
+
+
+	%REM
+		Property opstatus 
+		Opstatus that will be returned from the integration service.
+	
+	%END REM
+	Public Property Set opstatus As Integer 
+		'{{SETI_AUTHOR_CODE_Set.opstatus_implementation
+        Me.opstatus_ = opstatus
+        Call Me.result_.insertValue(OPSTATUS_PARAM, Me.opstatus_)
+		'}}
+
+	End Property
+
+
+	%REM
+		Property httpStatusCode 
+		HTTP status code that will be returned from the integration service.
+	
+		@return	Integer
+	%END REM
+	Public Property Get httpStatusCode As Integer 
+		'{{SETI_AUTHOR_CODE_Get.httpStatusCode_implementation
+        Return Me.httpStatusCode_
+		'}}
+
+	End Property
+
+
+	%REM
+		Property httpStatusCode 
+		HTTP status code that will be returned from the integration service.
+	
+	%END REM
+	Public Property Set httpStatusCode As Integer 
+		'{{SETI_AUTHOR_CODE_Set.httpStatusCode_implementation
+        Me.httpStatusCode_ = httpStatusCode
+        Call Me.result_.insertValue(HTTPSTATUSCODE_PARAM, Me.httpStatusCode_)
+		'}}
+
+	End Property
+
+	'{{SETI_AUTHOR_CODE_VoltMxResultObject_Private_Properties
+	'}}
+
+
+	%REM
+		Sub New 
+		Constructor. This is automatically called during extractObjects() and should not be run manually.
+	
+		@param	isPreProcessor 	Whether the VoltScript is being called from a preprocessor
+
+	%END REM
+	Public Sub New(isPreProcessor As Boolean) 
+		'{{SETI_AUTHOR_CODE_New_implementation
+        Me.isPreProcessor = isPreProcessor
+        Set Me.requestParams_ = new JsonObject()
+        Set Me.inputParams_ = new JsonObject()
+        Set Me.sessionAttributes_ = new JsonObject()
+        Set Me.headerParams_ = new JsonObject()
+        Set Me.deviceHeaderParams_ = new JsonObject()
+        Set me.result_ = new JsonObject()
+        Set Me.debugMessages_ = new JsonObject(True)
+		'}}
+
+	End Sub
+
+
+	%REM
+		Sub addRequestParam 
+		Adds a request parameter to the Foundry request. Only relevant for preprocessors.
+	
+		@param	key 	Key for the request parameter
+
+		@param	value 	Value for the request parameter
+
+		@throws	Adding request parameters is only relevant for PreProcessors 	
+	%END REM
+	Public Sub addRequestParam(key As String, value As Variant) 
+		'{{SETI_AUTHOR_CODE_addRequestParam_implementation
+        If Not Me.isPreProcessor Then
+            Error 1001, "Adding request parameters is only relevant for PreProcessors"
+        Else
+            Call Me.requestParams_.insertValue(key, value)
+        End If
+		'}}
+
+	End Sub
+
+
+	%REM
+		Sub addHeaderParam 
+		Adds a header param to the Foundry response.
+	
+		@param	key 	Key for the Foundry response parameter
+
+		@param	value 	Value for the Foundry response parameter
+
+		@throws	Adding header parameters is not relevant for PreProcessors 	
+	%END REM
+	Public Sub addHeaderParam(key As String, value As Variant) 
+		'{{SETI_AUTHOR_CODE_addHeaderParam_implementation
+        If Me.isPreProcessor Then
+            Error 1001, "Adding response header parameters is not relevant for PreProcessors"
+        Else
+            Call Me.headerParams_.insertValue(key, value)
+        End If
+		'}}
+
+	End Sub
+
+
+	%REM
+		Sub addDeviceHeaderParam 
+		Adds a device header parameter for the Foundry response.
+	
+		@param	key 	Key of the device header parameter
+
+		@param	value 	Value for the device header parameter
+
+		@throws	Adding response device header parameters is not relevant for PreProcessors 	
+	%END REM
+	Public Sub addDeviceHeaderParam(key As String, value As Variant) 
+		'{{SETI_AUTHOR_CODE_addDeviceHeaderParam_implementation
+        If Me.isPreProcessor Then
+            Error 1001, "Adding response device header parameters is not relevant for PreProcessors"
+        Else
+            Call Me.deviceHeaderParams_.insertValue(key, value)
+        End If
+		'}}
+
+	End Sub
+
+
+	%REM
+		Sub addSessionAttribute 
+		Adds a session attribute for the Foundry session object.
+	
+		@param	key 	Key for the session attribute
+
+		@param	value 	Value for the session attribute
+
+	%END REM
+	Public Sub addSessionAttribute(key As String, value As Variant) 
+		'{{SETI_AUTHOR_CODE_addSessionAttribute_implementation
+        Call Me.sessionAttributes_.insertValue(key, value)
+		'}}
+
+	End Sub
+
+
+	%REM
+		Sub addInputParam 
+		Adds an input parameter for the Foundry integration service. This is only relevant for preprocessors.
+	
+		@param	key 	Key for the input parameter
+
+		@param	value 	Value for the input parameter
+
+		@throws	Adding input parameters is only relevant for PreProcessors 	
+	%END REM
+	Public Sub addInputParam(key As String, value As Variant) 
+		'{{SETI_AUTHOR_CODE_addInputParam_implementation
+        If Not Me.isPreProcessor Then
+            Error 1001, "Adding input parameters is only relevant for PreProcessors"
+        Else
+            Call Me.inputParams_.insertValue(key, value)
+        End If
+		'}}
+
+	End Sub
+
+
+	%REM
+		Sub addDebugMessage 
+		Adds a message to be debugged from Foundry's Java logger.
+	
+		@param	message 	Message to debug
+
+	%END REM
+	Public Sub addDebugMessage(message As String) 
+		'{{SETI_AUTHOR_CODE_addDebugMessage_implementation
+        Call debugMessages_.appendToJsonArray(message)
+		'}}
+
+	End Sub
+
+
+	%REM
+		Sub setErrorMessage 
+		Sets an error message to pass back to Foundry. Only a single string error message can be passed back.
+	
+		@param	message 	Error message to send back to the browser
+
+	%END REM
+	Public Sub setErrorMessage(message As String) 
+		'{{SETI_AUTHOR_CODE_setErrorMessage_implementation
+        error_ = message
+		'}}
+
+	End Sub
+
+
+	%REM
+		Sub loadFromJson 
+
+		@param	jsonObj 	JSON object containing the incoming result
+
+	%END REM
+	Public Sub loadFromJson(jsonObj As JsonObject) 
+		'{{SETI_AUTHOR_CODE_loadFromJson_implementation
+        Set Me.result_ = jsonObj
+        If (jsonObj.isChild(OPSTATUS_PARAM)) Then
+            Me.opstatus = jsonObj.getChild(OPSTATUS_PARAM).scalarValue
+            Call Me.result_.insertValue(OPSTATUS_PARAM, Me.opstatus)
+        End If
+        If (jsonObj.isChild(HTTPSTATUSCODE_PARAM)) Then
+            Me.httpStatusCode = jsonObj.getChild(HTTPSTATUSCODE_PARAM).scalarValue
+            Call Me.result_.insertValue(HTTPSTATUSCODE_PARAM, Me.httpStatusCode)
+        End If
+		'}}
+
+	End Sub
+
+
+	%REM
+		Sub echoUnitTestContext 
+		Copies the incoming unit test context for VoltScript HTTP server into the result, the unitTestContext element outputed by setting "vsTestingContext":true in integration services.
+	
+	%END REM
+	Public Sub echoUnitTestContext() 
+		'{{SETI_AUTHOR_CODE_echoUnitTestContext_implementation
+		Call Me.result.insertValue("unitTestContext", passedCtx)
+		'}}
+
+	End Sub
+
+
+	%REM
+		Sub echoHttpServerContext 
+		Copies the incoming unit test context for VoltScript HTTP server into the result, the unitTestContext element outputed by setting "vsTestingContext":true in integration services.
+	
+	%END REM
+	Public Sub echoHttpServerContext() 
+		'{{SETI_AUTHOR_CODE_echoHttpServerContext_implementation
+		Dim jsonObj as New JsonObject()
+		Call jsonObj.insertValue("context", passedCtx)
+		If (VoltMxRequest.getIdentityParam != "") Then
+			Call jsonObj.insertValue("jwttoken", VoltMxRequest.getIdentityParam)
+		End If
+		Call Me.result.insertValue("httpServerContext", jsonObj)
+		'}}
+
+	End Sub
+
+
+	%REM
+		Function toJson 
+		Converts the VoltMxResultObject into JSON for passing back to Foundry'
+	
+		@return	JsonObject
+	%END REM
+	Public Function toJson() As JsonObject 
+		'{{SETI_AUTHOR_CODE_toJson_implementation
+        Dim jsonObj as new JsonObject
+        Dim tmpJson as JsonObject
+        Call jsonObj.insertValue(SESSION_PARAM, Me.sessionAttributes_)
+        Call jsonObj.insertValue("requestParams", Me.requestParams_)
+        Call jsonObj.insertValue("inputParams", Me.inputParams_)
+        Call jsonObj.insertValue("headerParams", Me.headerParams_)
+		Call jsonObj.insertValue("deviceHeaderParams", Me.deviceHeaderParams_)
+        Call jsonObj.insertValue("result", me.result_)
+        Call jsonObj.insertValue("debugMessages", Me.debugMessages_)
+        Call jsonObj.insertValue("errorMessage", Me.error_)
+        Return jsonObj
+		'}}
+
+	End Function
+
+	'{{SETI_AUTHOR_CODE_VoltMxResultObject_Private_Methods
+	'}} 
+
+End Class 
+
+
+%REM
+	Class VoltMxSessionObject 
+	Class for interacting with Foundry session content.
+ 
+%END REM
+Public Class VoltMxSessionObject 
+
+	'{{Variables
+	Public cookies As Collection 	 ' Collection of session cookies.
+	'}}
+
+	'{{SETI_AUTHOR_CODE_VoltMxSessionObject_Private_Variables
+    Private result as VoltMxResultObject
+    Private attributes as JsonObject
+	'}}
+
+	'{{SETI_AUTHOR_CODE_VoltMxSessionObject_Private_Properties
+	'}}
+
+
+	%REM
+		Sub New 
+		Constructor. This is automatically called during extractObjects() and should not be run manually.
+	
+		@param	result 	Result object that will be passed back to Foundry
+
+		@param	jsonObj 	JsonObject containing cookies
+
+	%END REM
+	Public Sub New(result As VoltMxResultObject, jsonObj As JsonObject) 
+		'{{SETI_AUTHOR_CODE_New_implementation
+        Set Me.result = result
+        Set cookies = New StringCollection(Nothing, False, False)
+        If (jsonObj.isChild("cookies")) Then
+            Call cookies.fromJson(jsonObj.getChild("cookies"))
+        End If
+        If (jsonObj.isChild("attributes")) Then
+            Set attributes = jsonObj.getChild("attributes")
+        End If
+		'}}
+
+	End Sub
+
+
+	%REM
+		Sub addAttribute 
+		Adds a session attribute to the Foundry session.
+	
+		@param	key 	Key for the session attribute
+
+		@param	value 	Value for the session attribute. This should be a scalar.
+
+	%END REM
+	Public Sub addAttribute(key As String, value As Variant) 
+		'{{SETI_AUTHOR_CODE_addAttribute_implementation
+        Call Me.result.addSessionAttribute(key, value)
+		'}}
+
+	End Sub
+
+
+	%REM
+		Function getAttribute 
+		Retrieves a session attribute that has been set in a prior request or via setAttribute().
+	
+		@param	key 	Key of the attribute
+
+		@return	Variant
+	%END REM
+	Public Function getAttribute(key As String) As Variant 
+		'{{SETI_AUTHOR_CODE_getAttribute_implementation
+        Dim child as JsonObject
+        If (me.attributes Is Nothing || me.attributes.isChild(key) = False) Then Return ""
+        If (Me.attributes.isChild(key)) Then 
+            Set child = Me.attributes.getChild(key)
+            If (child.isScalar()) Then
+                Return child.scalarValue
+            Else
+                Return child
+            End if
+        End If
+		'}}
+
+	End Function
+
+	'{{SETI_AUTHOR_CODE_VoltMxSessionObject_Private_Methods
+	'}} 
+
+End Class 
+'{{SETI_AUTHOR_CODE_VoltMXObjects_Private_Classes
+'}}
+
+
+%REM
+	Sub extractObjects 
+
+	@param	data 	JSON string input from Foundry
+
+	@param	isPreprocessor 	Whether Foundry object is from a preprocessor
+
+%END REM
+Public Sub extractObjects(data As String, isPreprocessor As Boolean) 
+	'{{SETI_AUTHOR_CODE_extractObjects_implementation
+    Set VoltMXResult = New VoltMxResultObject(isPreprocessor)
+    Set VoltMxLogger = new VoltMxLoggerObject(VoltMxResult)
+    Dim jsonParser as New JsonParser
+    Dim jsonObj as JsonObject
+    Dim passedObj as JsonObject
+    Dim serviceParams as JsonObject
+	Dim identityParam as JsonObject
+
+    Try
+        Call jsonParser.loadFromJson(data)
+        Set jsonObj = jsonParser.getRootObject()
+        If (jsonObj.isChild(RESULT_PARAM)) Then
+            Set passedObj = jsonObj.getChild(RESULT_PARAM)
+        Else
+            Set passedObj = New JsonObject()
+        End If
+        Call VoltMxResult.loadFromjson(passedObj)
+		Set passedCtx = jsonObj
+
+        If (jsonObj.isChild(SESSION_PARAM)) Then
+            Set passedObj = jsonObj.getChild(SESSION_PARAM)
+        Else
+            Set passedObj = New JsonObject
+        End If
+        Set VoltMxSession = new VoltMxSessionObject(VoltMxResult, passedObj)
+
+        If (jsonObj.isChild(INPUT_PARAMS_PARAM)) Then
+            Set serviceParams = jsonObj.getChild(INPUT_PARAMS_PARAM)
+        Else
+            Set serviceParams = New JsonObject()
+        End If
+
+        If (jsonObj.isChild(REQUEST_PARAM)) Then
+            Set passedObj = jsonObj.getChild(REQUEST_PARAM)
+        Else
+            Set passedObj = New JsonObject()
+        End If
+
+		If (jsonObj.isChild(IDENTITY_PARAM)) Then
+			Set identityParam = jsonObj.getChild(IDENTITY_PARAM)
+		End If
+        Set VoltMxRequest = new VoltMxRequestObject(VoltMxResult, serviceParams, identityParam, passedObj)
+
+        If (jsonObj.isChild(RESPONSE_PARAM)) Then
+            Set passedObj = jsonObj.getChild(RESPONSE_PARAM)
+        Else
+            Set passedObj = New JsonObject()
+        End If
+        Set VoltMxResponse = New VoltMxResponseObject(VoltMxResult, passedObj)
+
+        If (jsonObj.isChild(PROJECT_DIR_PARAM)) Then
+            PROJECT_DIR = jsonObj.getChild(PROJECT_DIR_PARAM).scalarValue
+        End If
+    Catch
+        Error 400, getErrorMsg("EXTRACTOBJECTS: ")
+    End Try
+	'}}
+
+End Sub
+
+
+%REM
+	Function getErrorMsg 
+	Converts an Error object to error code, message, line and stack trace
+	
+	@param	prefix 	Prefix to prepend to the outputted error message
+
+	@return	String
+%END REM
+Public Function getErrorMsg(prefix As String) As String 
+	'{{SETI_AUTHOR_CODE_getErrorMsg_implementation
+    If (Instr(Error(), "line ") > 0) Then
+        Return Error()
+    End If
+    Return prefix & " ERROR: " & Error() & " (" & Err() & "), line " & Erl() & getThreadInfo(12)
+	'}}
+
+End Function
+
+'{{SETI_AUTHOR_CODE_VoltMXObjects_Private_Methods
+Private Function wrapEmpty(incoming as Variant) as Variant
+    If (isEmpty(incoming)) Then
+        Return ""
+    Else
+        Return incoming
+    End If
+End Function
+'}} 

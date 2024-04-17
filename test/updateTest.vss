@@ -1,0 +1,266 @@
+Option Declare
+Option Public
+
+Use "../src/VoltMXObjects"
+Use "../libs/VoltScriptTesting"
+
+Function runUpdateTests() as Boolean
+
+    Dim testRunner as New TestRunner("Update Objects")
+    Call testRunner.setOutputFormat("BOTH")
+    Dim retVal as Boolean
+    Dim testStr as String
+
+    Try
+        testStr = getMockSimpleInput()
+        Call extractObjects(testStr, True)
+        Call testUpdateRequest(testRunner)
+        Call testLoggerSession(testRunner)
+
+        ' Load as postprocessor
+        Call extractObjects(testStr, False)
+        Call testUpdateResponse(testRunner)
+    Catch
+        Print "Error " & Error() & " on line " & Erl()
+    End Try
+
+    retVal = True
+    ForAll suite in testRunner.testSuites
+        retVal = retVal And suite.ranSuccessfully()
+    End ForAll
+    Return retVal
+
+End Function
+
+Function testUpdateRequest(testRunner as TestRunner) as Boolean
+
+    Dim outputJson as JsonObject
+    Dim testSuite as New TestSuite("Test Updating Request")
+    Call testRunner.addTestSuite(testSuite)
+
+    Call testSuite.describe("Test adding inputParam")
+    Try
+        Call VoltMxRequest.addInputParam("testParam", "testValue")
+        Call testSuite.addResult(True, "")
+    Catch
+        Call testSuite.addError("Error adding inputParam", Error())
+    End Try
+    Call testSuite.describe("Verify input param not added to VoltMxRequest").assertEqualsString("", VoltMxRequest.getInputParam("testParam"), True)
+    Set outputJson = VoltMxResult.toJson()
+    Call testSuite.describe("Verify input param added to result").assertTrue(outputJson.getChild("inputParams").isChild("testParam"))
+    Call testSuite.describe("Verify input param value").assertEqualsString("testValue", CStr(outputJson.getChild("inputParams").getChild("testParam").scalarValue), True)
+    Call VoltMXResult.addInputParam("testParam", "testNewValue")
+    Set outputJson = VoltMxResult.toJson()
+    Call testSuite.describe("Verify input param value").assertEqualsString("testNewValue", CStr(outputJson.getChild("inputParams").getChild("testParam").scalarValue), True)
+    
+    Call testSuite.describe("Test adding requestParam")
+    Try
+        Call VoltMxRequest.addRequestParam("testReqParam", "testValue")
+        Call testSuite.addResult(True, "")
+    Catch
+        Call testSuite.addError("Error adding requestParam", Error())
+    End Try
+    Call testSuite.describe("Verify request param not added to VoltMxRequest").assertEqualsString("", VoltMxRequest.getRequestParam("testReqParam"), True)
+    Set outputJson = VoltMxResult.toJson()
+    Call testSuite.describe("Verify request param added to result").assertTrue(outputJson.getChild("requestParams").isChild("testReqParam"))
+    Call testSuite.describe("Verify request param value").assertEqualsString("testValue", CStr(outputJson.getChild("requestParams").getChild("testReqParam").scalarValue), True)
+    Call VoltMXResult.addRequestParam("testReqParam", "testNewValue")
+    Set outputJson = VoltMxResult.toJson()
+    Call testSuite.describe("Verify input param value").assertEqualsString("testNewValue", CStr(outputJson.getChild("requestParams").getChild("testReqParam").scalarValue), True)
+    
+    Call testSuite.describe("Test adding headerParam")
+    Try
+        Call VoltMxResult.addHeaderParam("testHeaderParam", "testValue")
+        Call testSuite.addResult(False, "Adding headers should not be possible for preprocessors")
+    Catch
+        Call testSuite.addResult(True, "")
+        Call testSuite.describe("Verify header error message").assertEqualsString("Adding response header parameters is not relevant for PreProcessors", Error(), true)
+    End Try
+    
+    Call testSuite.describe("Test adding deviceHeaderParam")
+    Try
+        Call VoltMxResult.addDeviceHeaderParam("testDeviceHeaderParam", "testValue")
+        Call testSuite.addResult(False, "Adding headers should not be possible for preprocessors")
+    Catch
+        Call testSuite.addResult(True, "")
+        Call testSuite.describe("Verify device header error message").assertEqualsString("Adding response device header parameters is not relevant for PreProcessors", Error(), true)
+    End Try
+    
+    Return testSuite.ranSuccessfully()
+
+End Function
+
+Function testLoggerSession(testRunner as TestRunner) as Boolean
+
+    Dim outputJson as JsonObject
+    Dim testSuite as New TestSuite("Test Logger and Session")
+    Call testRunner.addTestSuite(testSuite)
+
+    Call testSuite.describe("Testing getting session attribute").assertEqualsString("John Doe", VoltMxSession.getAttribute("currentUser"), True)
+    Call testSuite.describe("Test setting session attribute")
+    Try
+        Call VoltMxSession.addAttribute("newAttribute", "newValue")
+        Call testSuite.addResult(True, "")
+    Catch
+        Call testSuite.addError("Error setting session attribute", Error())
+    End Try
+    Call testSuite.describe("Verify session attribute not added to existing session").assertEqualsString("", VoltMxSession.getAttribute("newAttribute"), True)
+    Set outputJson = VoltMxResult.toJson()
+    Call testSuite.describe("Verify session attribute added to result from session").assertTrue(outputJson.getChild("session").isChild("newAttribute"))
+
+    Call testSuite.describe("Test setting session attribute on result")
+    Try
+        Call VoltMxResult.addSessionAttribute("newAttribute", "updatedValue")
+        Call testSuite.addResult(True, "")
+    Catch
+        Call testSuite.addError("Error setting session attribute", Error())
+    End Try
+    Set outputJson = VoltMxResult.toJson()
+    Call testSuite.describe("Verify session attribute added to result").assertTrue(outputJson.getChild("session").isChild("newAttribute"))
+    Call testSuite.describe("Verify session attribute value").assertEqualsString("updatedValue", CStr(outputJson.getChild("session").getChild("newAttribute").scalarValue), True)
+
+    Call testSuite.describe("Test adding logging message")
+    Try
+        Call VoltMxLogger.debug("Test message")
+        Call testSuite.addResult(True, "")
+    Catch
+        Call testSuite.addError("Error adding log message", Error())
+    End Try
+    Set outputJson = VoltMxResult.toJson()
+    Call testSuite.describe("Verify log message added to result").assertTrue(outputJson.isChild("debugMessages"))
+    Call testSuite.describe("Verify a debug messages added").assertEqualsInteger(1, outputJson.getChild("debugMessages").childCount)
+    Call testSuite.describe("Verify log message value").assertEqualsString("Test message", CStr(outputJson.getChild("debugMessages").getChildren()(0).scalarValue), True)
+    
+    Call testSuite.describe("Test adding logging message to result")
+    Try
+        Call VoltMxResult.addDebugMessage("Test result message")
+        Call testSuite.addResult(True, "")
+    Catch
+        Call testSuite.addError("Error adding log message", Error())
+    End Try
+    Set outputJson = VoltMxResult.toJson()
+    Call testSuite.describe("Verify two debug messages added").assertEqualsInteger(2, outputJson.getChild("debugMessages").childCount)
+    Call testSuite.describe("Verify log message value").assertEqualsString("Test result message", CStr(outputJson.getChild("debugMessages").getChildren()(1).scalarValue), True)
+
+    Call testSuite.describe("Testing adding error message")
+    Try
+        Call VoltMxResult.setErrorMessage("Test error message")
+        Call testSuite.addResult(True, "")
+    Catch
+        Call testSuite.addError("Error adding error message", Error())
+    End Try
+    Set outputJson = VoltMxResult.toJson()
+    Call testSuite.describe("Verify error message added to result").assertTrue(outputJson.isChild("errorMessage"))
+    Call testSuite.describe("Verify error message value").assertEqualsString("Test error message", CStr(outputJson.getChild("errorMessage").scalarValue), True)
+
+    Return testSuite.ranSuccessfully()
+
+End Function
+
+Function testUpdateResponse(testRunner as TestRunner) as Boolean
+
+    Dim outputJson as JsonObject
+    Dim testSuite as New TestSuite("Test Updating Response")
+    Call testRunner.addTestSuite(testSuite)
+
+    Call testSuite.describe("Test adding inputParam")
+    Try
+        Call VoltMxResult.addInputParam("testInputParam", "testValue")
+        Call testSuite.addResult(False, "Adding input params should not be possible for preprocessors")
+    Catch
+        Call testSuite.addResult(True, "")
+        Call testSuite.describe("Verify input error message").assertEqualsString("Adding input parameters is only relevant for PreProcessors", Error(), true)
+    End Try
+
+    Call testSuite.describe("Test adding requestParam")
+    Try
+        Call VoltMxResult.addRequestParam("testRequestParam", "testValue")
+        Call testSuite.addResult(False, "Adding input params should not be possible for preprocessors")
+    Catch
+        Call testSuite.addResult(True, "")
+        Call testSuite.describe("Verify request error message").assertEqualsString("Adding request parameters is only relevant for PreProcessors", Error(), true)
+    End Try
+
+    Call testSuite.describe("Test adding headerParam to result")
+    Try
+        Call VoltMxResult.addHeaderParam("testHeaderParam", "testValue")
+        Call testSuite.addResult(True, "")
+    Catch
+        Call testSuite.addError("Error adding headerParam", Error())
+    End Try
+    Set outputJson = VoltMxResult.toJson()
+    Call testSuite.describe("Verify header param added to result").assertTrue(outputJson.getChild("headerParams").isChild("testHeaderParam"))
+    Call testSuite.describe("Verify header param value").assertEqualsString("testValue", CStr(outputJson.getChild("headerParams").getChild("testHeaderParam").scalarValue), True)
+
+    Call testSuite.describe("Test adding headerParam to response")
+    Try
+        Call VoltMxResponse.addHeaderParam("testResponseHeaderParam", "testValue")
+        Call testSuite.addResult(True, "")
+    Catch
+        Call testSuite.addError("Error adding headerParam", Error())
+    End Try
+    Set outputJson = VoltMxResult.toJson()
+    Call testSuite.describe("Verify header param added to result").assertTrue(outputJson.getChild("headerParams").isChild("testResponseHeaderParam"))
+    Call testSuite.describe("Verify header param value").assertEqualsString("testValue", CStr(outputJson.getChild("headerParams").getChild("testResponseHeaderParam").scalarValue), True)
+
+    Call testSuite.describe("Test adding deviceHeaderParam")
+    Try
+        Call VoltMxResult.addDeviceHeaderParam("testDeviceHeaderParam", "testValue")
+        Call testSuite.addResult(True, "")
+    Catch
+        Call testSuite.addError("Error adding deviceHeaderParam", Error())
+    End Try
+    Set outputJson = VoltMxResult.toJson()
+    Call testSuite.describe("Verify device header param added to result").assertTrue(outputJson.getChild("deviceHeaderParams").isChild("testDeviceHeaderParam"))
+    Call testSuite.describe("Verify device header param value").assertEqualsString("testValue", CStr(outputJson.getChild("deviceHeaderParams").getChild("testDeviceHeaderParam").scalarValue), True)
+
+    Call testSuite.describe("Test adding deviceHeaderParam to response")
+    Try
+        Call VoltMxResponse.addDeviceHeaderParam("testResponseDeviceHeaderParam", "testValue")
+        Call testSuite.addResult(True, "")
+    Catch
+        Call testSuite.addError("Error adding deviceHeaderParam", Error())
+    End Try
+    Set outputJson = VoltMxResult.toJson()
+    Call testSuite.describe("Verify device header param added to result").assertTrue(outputJson.getChild("deviceHeaderParams").isChild("testResponseDeviceHeaderParam"))
+    Call testSuite.describe("Verify device header param value").assertEqualsString("testValue", CStr(outputJson.getChild("deviceHeaderParams").getChild("testResponseDeviceHeaderParam").scalarValue), True)
+
+    Return testSuite.ranSuccessfully()
+
+End Function
+
+Private Function getMockSimpleInput() as String
+    Return |{
+    "projectDir": "ADD PROJECT DIRECTORY PATH HERE",
+    "result": {},
+    "request": {
+        "headers": {
+            "content-length": "402138",
+            "cookie": "JSESSIONID=0387B9D1BF9FA658D095713B75976EF8",
+            "x-voltmx-authorization": "eyAidHlwIjogImp3dCIsICJhbGciOiAiUlMyNTYiIH0.eyAiX2VtYWlsIjogInBhdWxzdGVwaGVuLndpdGhlcnNAaGNsLmNvbSIsICJfdmVyIjogInYxLjEiLCAiaXNzIjogImh0dHA6Ly9sb2NhbGhvc3Q6ODA4MC9hdXRoU2VydmljZS9hY2NvdW50cyIsICJfc2NvcGUiOiAiZyIsICJfaXNzbWV0YSI6ICIvbWV0YWRhdGEvU053dmNOTy1ValJkSnFvQ0VYNW1NZz09IiwgIl9zZXNzaW9uX2lkIjogIjkwZWRkYzhjLWZjYzEtNGU4MC1iOTU2LTdiNGVhMTI2ZGQwZiIsICJfcHVpZCI6IDQ1MTYxOTQ4ODAxNzYsICJfaWRwIjogInVzZXJzdG9yZSIsICJleHAiOiAxNzExNDU2MTMxLCAiaWF0IjogMTcxMTQ1MjUzMSwgIl9zZXNzaW9uX3RpZCI6ICJhY2NvdW50cyIsICJfcHJvdl91c2VyaWQiOiAicGF1bHN0ZXBoZW4ud2l0aGVyc0BoY2wuY29tIiwgImp0aSI6ICJiMzE2OTdkYS00YjgwLTQxZDQtOWQ2Yi00MTY4YWIwNjRjMWUiLCAiX2FjcyI6ICJhY2NvdW50cyIgfQ.aZrLnTvl8noUTb_K7ulpNpYOADmx-CkecDH0C24vE-P9ZxiWQmyShdeto-RSu8rBlh5gzDNHqw2PwXcjXgByFLImroBpy7chbifHCWr5pBicBneCCcZWLE-6sVewTjwWQd__noNhYftki2dAwtv5oEx3d87NYV_RGikGpjkQk8c9MZpmPQAb3up2-hGSROAAlhmHwM3hRB7avofUMwMpWVDt0peYeTxr51qVIYjoG0U8i0-eb4Xg9ZaT1VgVEY4H5Yb-W_qdsxlJdk70pIZlQH_HiydwRSqqUe7AGEo6Tr45oeexTxbXiARV9p-dB4VlS0RSQp_wDvKsXFaLkoXuYA",
+            "host": "localhost:8080",
+            "connection": "Keep-Alive",
+            "accept-encoding": "gzip,deflate",
+            "x-voltmx-server-console": "ADMIN-PORTAL-LOGICAL-URL-CHANGE",
+            "user-agent": "Apache-HttpClient/4.5.13 (Java/11.0.13)"
+        },
+        "params": {
+            "current_serviceID": "helloName",
+            "current_appID": "foundry-lab-vs",
+            "appID": "foundry-lab-vs",
+            "eventObserverID": "helloName",
+            "curent_apiVersion": "1.0",
+            "serviceID": "helloName"
+        }
+    },
+    "response": {},
+    "session": {
+        "attributes": {
+            "currentUser": "John Doe",
+            "KCookie": []
+        },
+        "cookies": {}
+    },
+    "serviceInputParams": {}
+}|
+End Function

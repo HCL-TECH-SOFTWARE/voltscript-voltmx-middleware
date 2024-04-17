@@ -1,0 +1,9 @@
+# Topic guides
+
+Topic guides discuss and explain topics and concepts about VoltScript Volt MX Middleware.
+
+- [Aims for VoltScript Volt MX Middleware](aims.md)
+- [Foundry processing](foundry.md)
+- [Understanding the boilerplate](boilerplate.md)
+
+For more information about writing VoltScript for Foundry, see the [VoltScript documentation](https://help.hcltechsw.com/docs/voltscript/early-access/index.html){: target="_blank" rel="noopener noreferrer"}.

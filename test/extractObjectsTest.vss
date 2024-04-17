@@ -1,0 +1,263 @@
+%REM
+    Copyright 2024 HCL America, Inc.
+
+    Licensed under the Apache License, Version 2.0 (the "License");
+    you may not use this file except in compliance with the License.
+    You may obtain a copy of the License at
+
+        http://www.apache.org/licenses/LICENSE-2.0
+
+    Unless required by applicable law or agreed to in writing, software
+    distributed under the License is distributed on an "AS IS" BASIS,
+    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+    See the License for the specific language governing permissions and
+    limitations under the License.
+%END REM
+Option Declare
+Option Public
+Use "../src/VoltMxObjects"
+Use "../libs/VoltScriptTesting"
+
+' Samples at the bottom
+
+Function testExtraction() as Boolean
+
+    Dim testRunner as New TestRunner("Extract Objects")
+    Call testRunner.setOutputFormat("BOTH")
+    Dim retVal as Boolean
+
+    Try
+        Call TestFailedExtraction(testRunner)
+        Call TestBasicExtraction(testRunner)
+        Call TestIdentityExtraction(testRunner)
+        Call TestEchos(testRunner)
+        Call TestPostProcessor(testRunner)
+    Catch
+        Print "Error " & Error() & " on line " & Erl()
+    End Try
+
+    retVal = True
+    ForAll suite in testRunner.testSuites
+        retVal = retVal And suite.ranSuccessfully()
+    End ForAll
+    Return retVal
+End Function
+
+Function TestFailedExtraction(testRunner as TestRunner) As Boolean
+
+    Dim testStr as String
+    Dim testSuite as New TestSuite("Failed Extraction Tests")
+    Call testRunner.addTestSuite(testSuite)
+    
+    testStr = |{"isPreprocessor":false,"request":{"headers":{"accept-encoding":"gzip,deflate","connection":"Keep-Alive","content-length":"1741258","cookie":"JSESSIONID=457648DBC57237306D8FAAF5265C0234","host":"localhost:8080","user-agent":"Apache-HttpClient/4.5.13 (Java/11.0.13)","x-voltmx-authorization":"eyAidHlwIjogImp3dCIsICJhbGciOiAiUlMyNTYiIH0.eyAiX2VtYWlsIjogImF1dGhlbnRpY2F0ZWR1c2VyQDEwMDAwMDAwMi5sb2NhbGhvc3QiLCAiX3ZlciI6ICJ2MS4xIiwgImlzcyI6ICJodHRwOi8vbG9jYWxob3N0OjgwODAvYXV0aFNlcnZpY2UvMTAwMDAwMDAyIiwgIl9zY29wZSI6ICJkZXYuaW50ZWdyYXRpb24iLCAiX2lzc21ldGEiOiAiL21ldGFkYXRhLzNRZ0N6MUVpN3ZneDlrcXZVOTZJOWc9PSIsICJfc2Vzc2lvbl9pZCI6ICJlNzEwYjUwNS0xOTk5LTQ1ZTgtOTg0OS1hNmFkMThmODFlMGQiLCAiX3B1aWQiOiA0LCAiX2F1dGh6IjogImV5SndaWEp0YVhOemFXOXVjeUk2ZXlJcU9pb2lPbHNpWnpwa0lpd2laenBqSWl3aVp6cDFJaXdpWnpweUlsMTlMQ0p5YjJ4bGN5STZXeUl4TURBd01EQXdNREl1WVdOamIzVnVkSE02VDNkdVpYSWlYWDAiLCAiX2lkcCI6ICJ1c2Vyc3RvcmUiLCAiZXhwIjogMTcwNTQxNDUxMSwgImlhdCI6IDE3MDU0MTMzMTEsICJfc2Vzc2lvbl90aWQiOiAiMTAwMDAwMDAyIiwgIl9wcm92X3VzZXJpZCI6ICJhdXRoZW50aWNhdGVkdXNlciIsICJqdGkiOiAiYzY4MzNkNmItMDBlZC00MTI5LWI2ZjAtYTBmMTIwMjFkYTBjIiwgIl9hY3MiOiAiMTAwMDAwMDAyIiB9.Vu1ZYHc7WExEa9jSeeoNvvH3ds8SUQPI298L5KZuOkXROP_WLhc_xTffAosQDqfhD95WWAjKhf40LQNWm5XRUPQDuXsbEPk4mN_y4rDlfuiTsGSQ4ihHbBSysooJpdQabK6BtiLf7_8Kk1e09sopua-7AcNCNAdHAviswKz3nvsznLxS8u0bj8tsvnwDRF65WT0box7cNxpG8UN1iDyNHpRkrYSpN6M0d-i9I0TkR181YHA9bal0biOZJ2fIQy4SNXkm-uKt6BEXp0IlgKw0wYXoAbpCueEsvCWDjx6zDmp_7mOQav80ZWn9cjODwbsuwCCKPaJCqQC6tMVvsOsnNg","x-voltmx-server-console":"ADMIN-PORTAL-LOGICAL-URL-CHANGE"},"identity":{"Authorization":"Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiIsImtpZCI6ImpaYVpwVmN6bEw5aUVIQzBuek42N2lXR0JTUm9udEUydmdVbFRqMGZhRGMifQ.eyJpc3MiOiJDTj1mcmFzY2F0aS5wcm9qZWN0a2VlcC5pby9PPVByb2plY3RLZWVwL0Y9RnJhc2NhdGlEZW1vIiwic3ViIjoiQ049TGVvbmFyZCBvZiBRdWlybS9PPVByb2plY3RLZWVwIiwiaWF0IjoxNzA1NDEzMzI3LCJleHAiOjE3MDU0MTY5MjcsImF1ZCI6IkRvbWlubyIsIkNOIjoiQ049TGVvbmFyZCBvZiBRdWlybS9PPVByb2plY3RLZWVwIiwic2NvcGUiOiIkREFUQSBwYXVsZGVtbyIsImVtYWlsIjoibGVvbmFyZC5xdWlybUBxdWF0dHJvLnJvY2tzIn0.D_V7deQVH_xc8TO3rh6jAZ9Qqvd_sJBo7luMo_ELN0lxWSCwf9523OjvqncNHErKEalt2SBiW3iSWOqu4XIyxPd_RyJhP7bkiRkwflQ64q49U1shKrc8Ssj-YSlXil6h4PnA5hNUWoxJdCW0-kz20iCI1TFix4OJO331NFeIDNTVQ1mHFD2veBztF9fqgmDXxMQCG-3XQOs4piaDtprgh_NBuDl8lncAkCdevTqb4Lg-8wm-h9tMs8NSUJgSQvPL32kbYWA-6OyY6jop31Hen_FiXEMfcHCSGx3P45im6LaFaONk7V5-Hy_v_GyRvQADW2KhaZvxl50vCJSxpprSGw"},"params":{"appID":"vs-test","curent_apiVersion":"1.0","current_appID":"vs-test","current_serviceID":"main","eventObserverID":"main","serviceID":"main","testInput":"Tester"}},"response":{},"result":{},"serviceInputParams":{"testInput":"Tester"},"session":{"attributes":{"KCookie":[]},"cookies":{}},}|
+    Call testSuite.describe("Extraction with bad JSON throws error")
+    Try
+        Call extractObjects(testStr, False)
+        Call testSuite.addResult(False, "Extraction should have thrown an error")
+    Catch
+        Call testSuite.addResult(True, "")
+        Call testSuite.describe("Check error code is 400").assertEqualsInteger(400, Err())
+    End Try
+        
+    Return testSuite.ranSuccessfully()
+End Function
+
+Function TestBasicExtraction(testRunner as TestRunner)
+
+    Dim testStr as String
+    Dim expected as String
+    Dim testSuite as New TestSuite("Basic Extraction Tests")
+    Call testRunner.addTestSuite(testSuite)
+    
+    testStr = getMockSimpleInput()
+    Call testSuite.describe("Extraction successful")
+    Try
+        Call extractObjects(testStr, False)
+        Call testSuite.addResult(True, "")
+    Catch
+        Call testSuite.addError("Error extracting test string", Error())
+        Return False
+    End Try
+
+    Call testSuite.describe("Check VoltMxRequest not nothing").assertFalse(VoltMXRequest Is Nothing)
+    Call testSuite.describe("Test getRequestParam current_serviceID").assertEqualsString("helloName", VoltMXRequest.getRequestParam("current_serviceID"), true)
+    Call testSuite.describe("Test getHeaderParam content-length").assertEqualsString("402138", VoltMXRequest.getHeaderParam("content-length"), True)
+    Call testSuite.describe("Test getInputParam foo is null").assertEqualsString("", VoltMXRequest.getInputParam("foo"), True)
+    Call testSuite.describe("Test identity param is null").assertEqualsString("", VoltMXRequest.getIdentityParam(), True)
+    Call testSuite.describe("Test response status").assertEqualsInteger(0, VoltMxResponse.getStatusCode())
+    Call testSuite.describe("Test result status").assertEqualsInteger(0, VoltMxResult.opStatus)
+    Call testSuite.describe("Test result httpStatusCode").assertEqualsInteger(0, VoltMxResult.httpStatusCode)
+    Call testSuite.describe("Test session currentUser").assertEqualsString("John Doe", VoltMXSession.getAttribute("currentUser"), True)
+
+    Return testSuite.ranSuccessfully()
+
+End Function
+
+Function TestIdentityExtraction(testRunner as TestRunner)
+
+    Dim testStr as String
+    Dim expected as String
+    Dim testSuite as New TestSuite("Identity Extraction Tests")
+    Call testRunner.addTestSuite(testSuite)
+    
+    testStr = getMockKeepInput()
+    Call testSuite.describe("Extraction successful")
+    Try
+        Call extractObjects(testStr, False)
+        Call testSuite.addResult(True, "")
+    Catch
+        Call testSuite.addError("Error extracting test string", Error())
+        Return False
+    End Try
+
+    Call testSuite.describe("Check VoltMxRequest not nothing").assertFalse(VoltMXRequest Is Nothing)
+    Call testSuite.describe("Test getRequestParam current_serviceID").assertEqualsString("updateCompany", VoltMXRequest.getRequestParam("current_serviceID"), true)
+    Call testSuite.describe("Test getInputParam CompanyName is Walsh Incorporated").assertEqualsString("Walsh Incorporated", VoltMXRequest.getInputParam("CompanyName"), True)
+    expected = "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJIQ0wgUHJvamVjdCBLRUVQIFJBTkRPTSIsInN1YiI6IkNOPVBhdWwgV2l0aGVycy9PVT1VSy9PPVBOUEhDTCIsImlhdCI6MTcxMjI0NTc2NSwiZXhwIjoxNzEyMjQ5MzY1LCJhdWQiOiJEb21pbm8iLCJDTiI6IkNOPVBhdWwgV2l0aGVycy9PVT1VSy9PPVBOUEhDTCIsInNjb3BlIjoiZm91bmRyeWNvbnRhY3RzIiwiZW1haWwiOiJwYXVsc3RlcGhlbi53aXRoZXJzQHBucC1oY2wuY29tIn0.8uurfSAtwLdx_Ii-AlwDP_CnOMszy0flSaQ3xWbztMA"
+    Call testSuite.describe("Test identity param is as expected").assertEqualsString(expected, VoltMXRequest.getIdentityParam(), True)
+    
+    Return testSuite.ranSuccessfully()
+
+End Function
+
+Function TestEchos(testRunner as TestRunner) As Boolean
+        
+    Dim testStr as String
+    Dim jsonParser as New JsonParser()
+    Dim hasUnitTestContext as Boolean
+    Dim hasHttpServerContext as Boolean
+    Dim unitTestContext as JsonObject
+    Dim temp as JsonObject
+    Dim testSuite as New TestSuite("Echo Tests")
+    Call testRunner.addTestSuite(testSuite)
+
+    testStr = getMockSimpleInput()
+    Call VoltMxResult.echoUnitTestContext()
+    hasUnitTestContext = testSuite.describe("Check context added").assertTrue(VoltMxResult.result.isChild("unitTestContext"))
+    Call VoltMxResult.echoHttpServerContext()
+    hasHttpServerContext = testSuite.describe("Check http server context added").assertTrue(VoltMxResult.result.isChild("httpServerContext"))
+    If (hasUnitTestContext && hasHttpServerContext) Then
+        Call testSuite.describe("Check no jwt token").assertFalse(VoltMxResult.result.getChild("httpServerContext").isChild("jwtToken"))
+        Call testSuite.describe("Check unitTestContext = httpServerContext context").assertEqualsString(VoltMxResult.result.getChild("unitTestContext").toString(True),_
+            VoltMxResult.result.getChild("httpServerContext").getChild("context").toString(True), True)
+        Call jsonParser.loadFromJson(testStr)
+        Set unitTestContext = VoltMxResult.result.getChild("unitTestContext")
+        ForAll child in jsonParser.getRootObject().getChildren()
+            Set temp = child
+            Call testSuite.describe("Check " & temp.Label & " is in unitTestContext").assertTrue(unitTestContext.isChild(temp.Label))
+        End ForAll
+    End If
+
+    Return testSuite.ranSuccessfully()
+End Function
+
+Function TestPostProcessor(testRunner as TestRunner)
+
+    Dim testStr as String
+    Dim testSuite as New TestSuite("PostProcessor Tests")
+    Call testRunner.addTestSuite(testSuite)
+    testStr = |{"result":{"opstatus":0,"responseList":[{"isFolder":true,"unid":"716FEA504C06FD2A482588840034086A","alias":["Trash"],"title":"($Trash)"},{"isFolder":false,"unid":"86C72C1BF64B6DF04825847100373215","alias":[],"title":"Customers"},{"isFolder":true,"unid":"C2D03996ADA9F306482588840035BB23","alias":[],"title":"Important Stuff"},{"isFolder":true,"unid":"26D914D0AE309D5085258A7B004A8B0A","alias":[],"title":"TestingFolders"}],"httpStatusCode":200},"projectDir":"/usr/local/tomcat/temp/voltscript","request":{"params":{"eventId":"QueMessage","current_serviceID":"lists","current_appID":"keep","appID":"keep","eventObserverID":"lists","curent_apiVersion":"1.0","serviceID":"lists","cacheid":"null"},"headers":{"content-length":"10923","x-voltmx-authorization":"eyAidHlwIjogImp3dCIsICJhbGciOiAiUlMyNTYiIH0.eyAiX2VtYWlsIjogImF1dGhlbnRpY2F0ZWR1c2VyQDEwMDAwMDAwMi5sb2NhbGhvc3QiLCAiX3ZlciI6ICJ2MS4xIiwgImlzcyI6ICJodHRwOi8vbG9jYWxob3N0OjgwODAvYXV0aFNlcnZpY2UvMTAwMDAwMDAyIiwgIl9zY29wZSI6ICJkZXYuaW50ZWdyYXRpb24iLCAiX2lzc21ldGEiOiAiL21ldGFkYXRhL3NxTXJjV2lMM2VRQVptX2NBYkkxQ3c9PSIsICJfc2Vzc2lvbl9pZCI6ICIyYzkxMzAxMC1jYzk4LTRjZmMtOTM3My1lMTVmNTMwZjFiNmMiLCAiX3B1aWQiOiA0LCAiX2F1dGh6IjogImV5SndaWEp0YVhOemFXOXVjeUk2ZXlJcU9pb2lPbHNpWnpwa0lpd2laenBqSWl3aVp6cDFJaXdpWnpweUlsMTlMQ0p5YjJ4bGN5STZXeUl4TURBd01EQXdNREl1WVdOamIzVnVkSE02VDNkdVpYSWlYWDAiLCAiX2lkcCI6ICJ1c2Vyc3RvcmUiLCAiZXhwIjogMTcxMjU4MTg1MiwgImlhdCI6IDE3MTI1ODA2NTIsICJfc2Vzc2lvbl90aWQiOiAiMTAwMDAwMDAyIiwgIl9wcm92X3VzZXJpZCI6ICJhdXRoZW50aWNhdGVkdXNlciIsICJqdGkiOiAiNjI1MDMwNDAtODBlNS00NDA0LTk0MWItNTY1NWQ1MGFhNjg1IiwgIl9hY3MiOiAiMTAwMDAwMDAyIiB9.aLRMSutBeg361Z1E5kFurTeI59biQcidp2XC7hZ3zyetnwUBruUZR5mqNInVeaE9y908AEaUJfSEmE0gh38gz4Kae7WFIp7ABb7czwTB2T8GQUteC9fD7EQT-cg6KJCKckrqDxpjEH5P6oYaxDcN2TODBSkGAlRMXKLi6hMJK_a8w5N66NKi7RZYcJ0WXOR-3JAcXsIGsaw3IzIIcbvUo1bngn14Al7QN3cdf16HBH1yp7V3aYXjsq0y7gW3Z0sfBcIXBqvz2YJStJG6SolcSBe_l6jtxlwfZBuIZqH0xn1r6YijtoLrvNBqD0aIjPtECvT6CXdZfx38VWrATaoC3w","host":"localhost:8080","connection":"Keep-Alive","accept-encoding":"gzip,deflate","x-voltmx-server-console":"ADMIN-PORTAL-LOGICAL-URL-CHANGE","user-agent":"Apache-HttpClient/4.5.13 (Java/11.0.13)"}},"identity":"eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiIsImtpZCI6ImpaYVpwVmN6bEw5aUVIQzBuek42N2lXR0JTUm9udEUydmdVbFRqMGZhRGMifQ.eyJpc3MiOiJDTj1mcmFzY2F0aS5wcm9qZWN0a2VlcC5pby9PPVByb2plY3RLZWVwL0Y9RnJhc2NhdGlEZW1vIiwic3ViIjoiQ049TGVvbmFyZCBvZiBRdWlybS9PPVByb2plY3RLZWVwIiwiaWF0IjoxNzEyNTgwNjY2LCJleHAiOjE3MTI1ODQyNjYsImF1ZCI6IkRvbWlubyIsIkNOIjoiQ049TGVvbmFyZCBvZiBRdWlybS9PPVByb2plY3RLZWVwIiwic2NvcGUiOiIkREFUQSBwYXVsZGVtbyB2c3BvY3JlY2lwZXNjb3BlIiwiZW1haWwiOiJsZW9uYXJkLnF1aXJtQHF1YXR0cm8ucm9ja3MifQ.aE6Yys8ao_UXs6UajoD57kWCxflHZ_6lAaWZTtgmBKnwGWkKCgIOlmcVL6Ks9ifzKEi_xJG0o_d7bJNqjB-d2P0W7n65L1taBLS22V2bJiudXWwegzDh5O_sCFvly4bdVvCNIQA7vqu1YRZzm26mL27vJtgyg_cAqnTEQ3mtewP9kWEKKx0qN6Q4WS30IJq63kkbNfL_xMdqAMORzspVUYYk_LpxwyoLdo2RLLEuQaETcQObryFkIZ5cvzqZqRn4cYwQlpuQjETBhrP-aRwUBje0ggZuArCUb-zSv08-cZZh2T9JOPdvBRXLWYpWHWPLPDiEh9FpfzvRKKzZZzYZyA","response":{"headers":{"Transfer-Encoding":"chunked","Referrer-Policy":"no-referrer","X-Frame-Options":"deny","Server":"nginx/1.25.4","X-Content-Type-Options":"nosniff","Content-Security-Policy":"default-src 'self'; img-src 'self' data:;","Connection":"keep-alive","UUID":"92aa60ab-d9fe-45df-95b7-371573bb0b46","CacheHash":"a2fe87ffa4fa0fd40fc6375689cd779b227b7cf5274269b0aeb3b4e0cdcc44b0","Date":"Mon, 08 Apr 2024 12:51:22 GMT","X-Clacks-Overhead":"GNU Terry Pratchett","Content-Type":"application/json; charset=utf-8"},"deviceHeaders":{},"statusCode":200},"session":{"attributes":{"AppUserPreferredName":"Cosmo","KCookie":[]},"cookies":{}},"serviceInputParams":{"place":"London"}}|
+
+    Call testSuite.describe("Extraction successful")
+    Try
+        Call extractObjects(testStr, False)
+        Call testSuite.addResult(True, "")
+    Catch
+        Call testSuite.addError("Error extracting test string", Error())
+        Return
+    End Try
+    
+    Call testSuite.describe("Test getRequestParam eventObserverID").assertEqualsString("lists", VoltMXRequest.getRequestParam("eventObserverID"), true)
+    Call testSuite.describe("Test getRequestParam appID").assertEqualsString("keep", VoltMXRequest.getRequestParam("appID"), true)
+    Call testSuite.describe("Test getHeader").assertEqualsString("10923", VoltMXRequest.getHeaderParam("content-length"), True)
+    Call testSuite.describe("Test get identity").assertEqualsPrimitive(_ 
+        "eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiIsImtpZCI6ImpaYVpwVmN6bEw5aUVIQzBuek42N2lXR0JTUm9udEUydmdVbFRqMGZhRGMifQ.eyJpc3MiOiJDTj1mcmFzY2F0aS5wcm9qZWN0a2VlcC5pby9PPVByb2plY3RLZWVwL0Y9RnJhc2NhdGlEZW1vIiwic3ViIjoiQ049TGVvbmFyZCBvZiBRdWlybS9PPVByb2plY3RLZWVwIiwiaWF0IjoxNzEyNTgwNjY2LCJleHAiOjE3MTI1ODQyNjYsImF1ZCI6IkRvbWlubyIsIkNOIjoiQ049TGVvbmFyZCBvZiBRdWlybS9PPVByb2plY3RLZWVwIiwic2NvcGUiOiIkREFUQSBwYXVsZGVtbyB2c3BvY3JlY2lwZXNjb3BlIiwiZW1haWwiOiJsZW9uYXJkLnF1aXJtQHF1YXR0cm8ucm9ja3MifQ.aE6Yys8ao_UXs6UajoD57kWCxflHZ_6lAaWZTtgmBKnwGWkKCgIOlmcVL6Ks9ifzKEi_xJG0o_d7bJNqjB-d2P0W7n65L1taBLS22V2bJiudXWwegzDh5O_sCFvly4bdVvCNIQA7vqu1YRZzm26mL27vJtgyg_cAqnTEQ3mtewP9kWEKKx0qN6Q4WS30IJq63kkbNfL_xMdqAMORzspVUYYk_LpxwyoLdo2RLLEuQaETcQObryFkIZ5cvzqZqRn4cYwQlpuQjETBhrP-aRwUBje0ggZuArCUb-zSv08-cZZh2T9JOPdvBRXLWYpWHWPLPDiEh9FpfzvRKKzZZzYZyA",_
+        VoltMXRequest.getIdentityParam())
+    Call testSuite.describe("Test input param").assertEqualsString("London", VoltMXRequest.getInputParam("place"), True)
+    Call testSuite.describe("Test response status").assertEqualsInteger(200, VoltMxResponse.getStatusCode())
+    Call testSuite.describe("Test response header GNU").assertEqualsString("GNU Terry Pratchett", VoltMxResponse.getHeaderParam("X-Clacks-Overhead"), True)
+    Call testSuite.describe("Test opstatus").assertEqualsInteger(0, VoltMxResult.opStatus)
+    Call testSuite.describe("Test result status").assertEqualsInteger(200, VoltMxResult.httpStatusCode)
+    Call testSuite.describe("Test result has responseList").assertTrue(VoltMxResult.result.isChild("responseList"))
+
+End Function
+
+Private Function getMockSimpleInput() as String
+    Return |{
+    "projectDir": "ADD PROJECT DIRECTORY PATH HERE",
+    "result": {},
+    "request": {
+        "headers": {
+            "content-length": "402138",
+            "cookie": "JSESSIONID=0387B9D1BF9FA658D095713B75976EF8",
+            "x-voltmx-authorization": "eyAidHlwIjogImp3dCIsICJhbGciOiAiUlMyNTYiIH0.eyAiX2VtYWlsIjogInBhdWxzdGVwaGVuLndpdGhlcnNAaGNsLmNvbSIsICJfdmVyIjogInYxLjEiLCAiaXNzIjogImh0dHA6Ly9sb2NhbGhvc3Q6ODA4MC9hdXRoU2VydmljZS9hY2NvdW50cyIsICJfc2NvcGUiOiAiZyIsICJfaXNzbWV0YSI6ICIvbWV0YWRhdGEvU053dmNOTy1ValJkSnFvQ0VYNW1NZz09IiwgIl9zZXNzaW9uX2lkIjogIjkwZWRkYzhjLWZjYzEtNGU4MC1iOTU2LTdiNGVhMTI2ZGQwZiIsICJfcHVpZCI6IDQ1MTYxOTQ4ODAxNzYsICJfaWRwIjogInVzZXJzdG9yZSIsICJleHAiOiAxNzExNDU2MTMxLCAiaWF0IjogMTcxMTQ1MjUzMSwgIl9zZXNzaW9uX3RpZCI6ICJhY2NvdW50cyIsICJfcHJvdl91c2VyaWQiOiAicGF1bHN0ZXBoZW4ud2l0aGVyc0BoY2wuY29tIiwgImp0aSI6ICJiMzE2OTdkYS00YjgwLTQxZDQtOWQ2Yi00MTY4YWIwNjRjMWUiLCAiX2FjcyI6ICJhY2NvdW50cyIgfQ.aZrLnTvl8noUTb_K7ulpNpYOADmx-CkecDH0C24vE-P9ZxiWQmyShdeto-RSu8rBlh5gzDNHqw2PwXcjXgByFLImroBpy7chbifHCWr5pBicBneCCcZWLE-6sVewTjwWQd__noNhYftki2dAwtv5oEx3d87NYV_RGikGpjkQk8c9MZpmPQAb3up2-hGSROAAlhmHwM3hRB7avofUMwMpWVDt0peYeTxr51qVIYjoG0U8i0-eb4Xg9ZaT1VgVEY4H5Yb-W_qdsxlJdk70pIZlQH_HiydwRSqqUe7AGEo6Tr45oeexTxbXiARV9p-dB4VlS0RSQp_wDvKsXFaLkoXuYA",
+            "host": "localhost:8080",
+            "connection": "Keep-Alive",
+            "accept-encoding": "gzip,deflate",
+            "x-voltmx-server-console": "ADMIN-PORTAL-LOGICAL-URL-CHANGE",
+            "user-agent": "Apache-HttpClient/4.5.13 (Java/11.0.13)"
+        },
+        "params": {
+            "current_serviceID": "helloName",
+            "current_appID": "foundry-lab-vs",
+            "appID": "foundry-lab-vs",
+            "eventObserverID": "helloName",
+            "curent_apiVersion": "1.0",
+            "serviceID": "helloName"
+        }
+    },
+    "response": {},
+    "session": {
+        "attributes": {
+            "currentUser": "John Doe",
+            "KCookie": []
+        },
+        "cookies": {}
+    },
+    "serviceInputParams": {}
+}|
+End Function
+
+Private Function getMockKeepInput() as String
+    Return |{
+    "projectDir": "ADD PROJECT DIRECTORY PATH HERE",
+    "result": {},
+    "request": {
+      "headers": {
+        "content-length": "4940756",
+        "cookie": "JSESSIONID=76F0EF5FBE07637B403166290EDC1983",
+        "x-voltmx-authorization": "eyAidHlwIjogImp3dCIsICJhbGciOiAiUlMyNTYiIH0.eyAiX2VtYWlsIjogImF1dGhlbnRpY2F0ZWR1c2VyQDEwMDAwMDAwMi5sb2NhbGhvc3QiLCAiX3ZlciI6ICJ2MS4xIiwgImlzcyI6ICJodHRwOi8vbG9jYWxob3N0OjgwODAvYXV0aFNlcnZpY2UvMTAwMDAwMDAyIiwgIl9zY29wZSI6ICJkZXYuaW50ZWdyYXRpb24iLCAiX2lzc21ldGEiOiAiL21ldGFkYXRhL3NxTXJjV2lMM2VRQVptX2NBYkkxQ3c9PSIsICJfc2Vzc2lvbl9pZCI6ICI2NGQ4M2MxNC02NTFlLTQ5NjItYjZhYi03NjY1ZDdkNWZmMzEiLCAiX3B1aWQiOiA0LCAiX2F1dGh6IjogImV5SndaWEp0YVhOemFXOXVjeUk2ZXlJcU9pb2lPbHNpWnpwa0lpd2laenBqSWl3aVp6cDFJaXdpWnpweUlsMTlMQ0p5YjJ4bGN5STZXeUl4TURBd01EQXdNREl1WVdOamIzVnVkSE02VDNkdVpYSWlYWDAiLCAiX2lkcCI6ICJ1c2Vyc3RvcmUiLCAiZXhwIjogMTcxMjI0Njk1MCwgImlhdCI6IDE3MTIyNDU3NTEsICJfc2Vzc2lvbl90aWQiOiAiMTAwMDAwMDAyIiwgIl9wcm92X3VzZXJpZCI6ICJhdXRoZW50aWNhdGVkdXNlciIsICJqdGkiOiAiODc5N2QxMjktYTlkMi00OTRhLWIwNTUtZTUyYTRlNDgyODIxIiwgIl9hY3MiOiAiMTAwMDAwMDAyIiB9.De1bhd0wSqIdnj-pBRdx3tSd8krocK42J64Q-FKlffKe9IMjmEwZSz1vUWSlX2yBV3gijJGb5jaXnX4fsVfpD3dCo0govaSdX5F8uXhMtid7MP7BSzYwo-hBFhMd3XhdsuJgL___GULozHrZ-XdM5aGAJWPQMf-B8WgR5qOhP-mEGtdmsh_1b9jKkFS_nIzZvabsNaPxzapdPjp2ixbU9WBTROuddG9SRnWH2E1aHsylp-k6L4oSsvdIETctzPqQ1pAG8PNEK75Zi9x-37vMsSMWk2U2G8hjMWpLbNbaTsTcUutr5fgG8iZXTEx1jjX0xXgg2UjB01CkaefZdp5KwA",
+        "host": "localhost:8080",
+        "connection": "Keep-Alive",
+        "accept-encoding": "gzip,deflate",
+        "x-voltmx-server-console": "ADMIN-PORTAL-LOGICAL-URL-CHANGE",
+        "user-agent": "Apache-HttpClient/4.5.13 (Java/11.0.13)"
+      },
+      "params": {
+        "CompanyName": "Walsh Incorporated",
+        "unid": "22484EDD58553DE700258ADA005D280E",
+        "current_serviceID": "updateCompany",
+        "current_appID": "foundry-keep-vs",
+        "serverURL": "https://keep.cascade.fnxlabs.com/api/v1/",
+        "appID": "foundry-keep-vs",
+        "eventObserverID": "updateCompany",
+        "curent_apiVersion": "1.0",
+        "serviceID": "updateCompany",
+        "vsTestingContext": "true"
+      }
+    },
+    "identity": "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJIQ0wgUHJvamVjdCBLRUVQIFJBTkRPTSIsInN1YiI6IkNOPVBhdWwgV2l0aGVycy9PVT1VSy9PPVBOUEhDTCIsImlhdCI6MTcxMjI0NTc2NSwiZXhwIjoxNzEyMjQ5MzY1LCJhdWQiOiJEb21pbm8iLCJDTiI6IkNOPVBhdWwgV2l0aGVycy9PVT1VSy9PPVBOUEhDTCIsInNjb3BlIjoiZm91bmRyeWNvbnRhY3RzIiwiZW1haWwiOiJwYXVsc3RlcGhlbi53aXRoZXJzQHBucC1oY2wuY29tIn0.8uurfSAtwLdx_Ii-AlwDP_CnOMszy0flSaQ3xWbztMA",
+    "response": {},
+    "session": {
+      "attributes": {
+        "KCookie": []
+      },
+      "cookies": {}
+    },
+    "serviceInputParams": {
+      "CompanyName": "Walsh Incorporated",
+      "unid": "22484EDD58553DE700258ADA005D280E",
+      "serverURL": "https://keep.cascade.fnxlabs.com/api/v1/"
+    }
+  }|
+End Function

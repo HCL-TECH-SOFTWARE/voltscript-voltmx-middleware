@@ -1,0 +1,15 @@
+
+# VoltScript
+vses/*
+libs/*
+effective-atlas.json
+seti.ini
+unit-test-reports/*
+internal-atlas.json
+
+#VS Code
+.devcontainer/*
+.vscode/*
+
+#gh-pages
+site/*
