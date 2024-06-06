@@ -17,6 +17,7 @@ theme:
     - search.share
     - search.suggest
     - content.code.annotate
+    - content.code.copy
     - content.tooltips
   #custom_dir: theme_overrides/
   icon:
