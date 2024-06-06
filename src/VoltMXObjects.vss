@@ -894,8 +894,9 @@ End Class
 Public Sub extractObjects(data As String, isPreprocessor As Boolean) 
 	'{{SETI_AUTHOR_CODE_extractObjects_implementation
     Set VoltMXResult = New VoltMxResultObject(isPreprocessor)
-    Set VoltMxLogger = new VoltMxLoggerObject(VoltMxResult)
-    Dim jsonParser as New JsonParser
+    Set VoltMxLogger = New VoltMxLoggerObject(VoltMxResult)
+  
+    Dim jsonParser as New JsonParser()
     Dim jsonObj as JsonObject
     Dim passedObj as JsonObject
     Dim serviceParams as JsonObject
@@ -909,6 +910,7 @@ Public Sub extractObjects(data As String, isPreprocessor As Boolean)
         Else
             Set passedObj = New JsonObject()
         End If
+
         Call VoltMxResult.loadFromjson(passedObj)
 		Set passedCtx = jsonObj
 
@@ -949,6 +951,7 @@ Public Sub extractObjects(data As String, isPreprocessor As Boolean)
     Catch
         Error 400, getErrorMsg("EXTRACTOBJECTS: ")
     End Try
+
 	'}}
 
 End Sub
@@ -964,10 +967,30 @@ End Sub
 %END REM
 Public Function getErrorMsg(prefix As String) As String 
 	'{{SETI_AUTHOR_CODE_getErrorMsg_implementation
-    If (Instr(Error(), "line ") > 0) Then
-        Return Error()
-    End If
-    Return prefix & " ERROR: " & Error() & " (" & Err() & "), line " & Erl() & getThreadInfo(12)
+	Dim stack as Variant 
+	Dim result as String 
+	Dim i%
+
+	result = trim(prefix & | ERROR | & Err() & | at line | & Erl() & |, | & Error())
+
+	if (instr(result, chr(10)) > 0) then print |result has chr(10)|
+
+	stack = split(getThreadInfo(12), chr(10))
+
+	if Lbound(stack) < Ubound(stack) Then 
+		result = result & | [|
+	
+		for i% = Lbound(stack) + 1 to Ubound(stack) 
+			if (len(trim(stack(i%))) > 0) Then 
+				result = result & strLeft(stack(i%), |,|) & |.| & join(split(strright(stack(i%), |,|), |,|), |:|)
+				if (i% < Ubound(stack)) && (len(trim(stack(i% + 1))) > 0) then result = result & |, |
+			end if 
+		next
+
+		result = result & |]|
+	end If 
+
+	return result 
 	'}}
 
 End Function
