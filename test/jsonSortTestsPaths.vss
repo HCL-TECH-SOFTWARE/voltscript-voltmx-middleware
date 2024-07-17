@@ -1,0 +1,289 @@
+Option Public
+Option Explicit
+
+Use "../src/VoltMXObjects"
+Use "../libs/VoltScriptTesting"
+
+CONST TEST_DATA2_FILE$ = "/files/TEST_DATA2.json"
+
+Public Function runJsonSorterPathTests
+    Dim testRunner as New TestRunner("Test JsonSorter with Pathed Labels")
+    Call testRunner.setOutputFormat("BOTH")
+    Dim retVal as Boolean
+
+    Try
+        Call testJsonSorterPaths(testRunner)
+    Catch
+        Print "Error " & Error() & " on line " & Erl()
+    End Try
+
+    retVal = True
+    Forall suite in testRunner.testSuites
+        retVal = retVal And suite.ranSuccessfully()
+    End Forall
+    Return retVal
+End Function
+
+Sub testJsonSorterPaths(testRunner as TestRunner)
+    Dim testSuite as New TestSuite("Test jsonSort() Functionality with Pathed Labels")
+     Dim teststr as String, resultstr as String
+
+    Call testRunner.addTestSuite(testSuite)
+    
+    Try
+        teststr = "*empty*-California-Salinas~*empty*-California-San Jose~*empty*-California-San Mateo~"
+        resultstr = testJsonSortPathAscending()
+        Call testSuite.describe("jsonSort with Paths Ascending").assertEqualsString(teststr, resultstr, false)
+
+        teststr = "Zooxo-California-San Francisco~Zoonder-New York-Flushing~Zoomzone-Georgia-Cumming~"
+        resultstr = testJsonSortPathDescending()
+        Call testSuite.describe("jsonSort with Paths Descending").assertEqualsString(teststr, resultstr, false)
+        resultstr = testJsonSortPathDescendingAltDelim()
+        Call testSuite.describe("jsonSort with Paths Descending and Alternative Delimiter").assertEqualsString(teststr, resultstr, false)
+    Catch
+        Call testSuite.addError("Error " & Error() & " on line " & Erl(), "")
+        Print "Error " & Error() & " on line " & Erl()
+    End Try
+End Sub
+
+Function testJsonSortPathAscending() as String
+    Dim parser as New JsonParser()
+    Dim dataobj as New JsonObject(true), newobj as JsonObject
+    Dim tobj as JsonObject
+    Dim labels(2) as String, results(2) as String
+    Dim i as Integer, z as Integer
+    Dim rvar as Variant, rstr as String
+    Dim start as Double, finish as Double
+    Dim fpath as string, delim as String, teststr as string
+
+    labels(0) = "company"
+    labels(1) = "address/state"
+    labels(2) = "address/city"
+ 
+    delim = "/"
+    z = 3
+
+    Try
+        Call parser.loadFromFile(CurDir() & TEST_DATA2_FILE)
+        Set dataObj = parser.getRootObject()
+
+        If dataobj Is Nothing Then
+            Print "Error: Unable to parse file " & fpath
+            Exit Function
+        End If
+
+        Set newobj = jsonSort(dataObj, labels(0), False, labels(1), False, labels(2), False, delim)
+
+   ' now loop through the newobj and print the sorted data to show it works
+        Forall obj in newobj.GetChildren()   
+            Set tobj = obj 
+
+            Set tobj = obj.getDescendantPath(labels(0), delim)
+            If Not(tobj is nothing) Then
+                rvar = tobj.ScalarValue
+                If isEmpty(rvar) Then 
+                    results(0) = "*empty*"
+                Else
+                    results(0) = Cstr(rvar)
+                End If
+            End IF
+
+            If labels(1) != "" Then
+                Set tobj = obj.getDescendantPath(labels(1), delim)
+                If Not(tobj is nothing) Then
+                    rvar = tobj.ScalarValue
+                    If isEmpty(rvar) Then 
+                        results(1) = "*empty*"
+                    Else
+                        results(1) = Cstr(rvar)
+                    End If
+                End IF
+            End IF
+           
+           If labels(2) != "" Then
+                Set tobj = obj.getDescendantPath(labels(2), delim)
+                If Not(tobj is nothing) Then
+                    rvar = tobj.ScalarValue
+                    If isEmpty(rvar) Then 
+                        results(2) = "*empty*"
+                    Else
+                        results(2) = Cstr(rvar)
+                    End If
+                End IF
+            End IF
+
+            rstr += results(0) & "-" & results(1) & "-" & results(2) & "~"
+
+            i++
+            If i = z Then Exit ForAll
+        End Forall
+
+        return rstr
+    Catch
+        Print "Error " & Error() & " on line " & Erl()
+    End Try
+End Function
+
+Function testJsonSortPathDescending() as String
+    Dim parser as New JsonParser()
+    Dim dataobj as New JsonObject(true), newobj as JsonObject
+    Dim tobj as JsonObject
+    Dim labels(2) as String, results(2) as String
+    Dim i as Integer, z as Integer
+    Dim rvar as Variant, rstr as String
+    Dim start as Double, finish as Double
+    Dim fpath as string, delim as String, teststr as string
+
+'    labels(0) = "address/state"
+'    labels(1) = "address/city"
+ '   labels(2) = "company"
+
+    labels(0) = "company"
+    labels(1) = "address/state"
+    labels(2) = "address/city"
+ 
+    delim = "/"
+    z = 3
+
+    Try
+        Call parser.loadFromFile(CurDir() & TEST_DATA2_FILE)
+        Set dataObj = parser.getRootObject()
+
+        If dataobj Is Nothing Then
+            Print "Error: Unable to parse file " & fpath
+            Exit Function
+        End If
+
+        Set newobj = jsonSort(dataObj, labels(0), True, labels(1), True, labels(2), True, delim)
+
+   ' now loop through the newobj and print the sorted data to show it works
+        Forall obj in newobj.GetChildren()   
+            Set tobj = obj 
+
+            Set tobj = obj.getDescendantPath(labels(0), delim)
+            If Not(tobj is nothing) Then
+                rvar = tobj.ScalarValue
+                If isEmpty(rvar) Then 
+                    results(0) = "*empty*"
+                Else
+                    results(0) = Cstr(rvar)
+                End If
+            End IF
+
+            If labels(1) != "" Then
+                Set tobj = obj.getDescendantPath(labels(1), delim)
+                If Not(tobj is nothing) Then
+                    rvar = tobj.ScalarValue
+                    If isEmpty(rvar) Then 
+                        results(1) = "*empty*"
+                    Else
+                        results(1) = Cstr(rvar)
+                    End If
+                End IF
+            End IF
+           
+           If labels(2) != "" Then
+                Set tobj = obj.getDescendantPath(labels(2), delim)
+                If Not(tobj is nothing) Then
+                    rvar = tobj.ScalarValue
+                    If isEmpty(rvar) Then 
+                        results(2) = "*empty*"
+                    Else
+                        results(2) = Cstr(rvar)
+                    End If
+                End IF
+            End IF
+
+            rstr += results(0) & "-" & results(1) & "-" & results(2) & "~"
+
+            i++
+            If i = z Then Exit ForAll
+        End Forall
+
+        return rstr
+    Catch
+        Print "Error " & Error() & " on line " & Erl()
+    End Try
+End Function
+
+Function testJsonSortPathDescendingAltDelim() as String
+    Dim parser as New JsonParser()
+    Dim dataobj as New JsonObject(true), newobj as JsonObject
+    Dim tobj as JsonObject
+    Dim labels(2) as String, results(2) as String
+    Dim i as Integer, z as Integer
+    Dim rvar as Variant, rstr as String
+    Dim start as Double, finish as Double
+    Dim fpath as string, delim as String, teststr as string
+
+'    labels(0) = "address/state"
+'    labels(1) = "address/city"
+ '   labels(2) = "company"
+
+    labels(0) = "company"
+    labels(1) = "address~state"
+    labels(2) = "address~city"
+ 
+    delim = "~"
+    z = 3
+
+    Try
+        Call parser.loadFromFile(CurDir() & TEST_DATA2_FILE)
+        Set dataObj = parser.getRootObject()
+
+        If dataobj Is Nothing Then
+            Print "Error: Unable to parse file " & fpath
+            Exit Function
+        End If
+
+        Set newobj = jsonSort(dataObj, labels(0), True, labels(1), True, labels(2), True, delim)
+
+   ' now loop through the newobj and print the sorted data to show it works
+        Forall obj in newobj.GetChildren()   
+            Set tobj = obj 
+
+            Set tobj = obj.getDescendantPath(labels(0), delim)
+            If Not(tobj is nothing) Then
+                rvar = tobj.ScalarValue
+                If isEmpty(rvar) Then 
+                    results(0) = "*empty*"
+                Else
+                    results(0) = Cstr(rvar)
+                End If
+            End IF
+
+            If labels(1) != "" Then
+                Set tobj = obj.getDescendantPath(labels(1), delim)
+                If Not(tobj is nothing) Then
+                    rvar = tobj.ScalarValue
+                    If isEmpty(rvar) Then 
+                        results(1) = "*empty*"
+                    Else
+                        results(1) = Cstr(rvar)
+                    End If
+                End IF
+            End IF
+           
+           If labels(2) != "" Then
+                Set tobj = obj.getDescendantPath(labels(2), delim)
+                If Not(tobj is nothing) Then
+                    rvar = tobj.ScalarValue
+                    If isEmpty(rvar) Then 
+                        results(2) = "*empty*"
+                    Else
+                        results(2) = Cstr(rvar)
+                    End If
+                End IF
+            End IF
+
+            rstr += results(0) & "-" & results(1) & "-" & results(2) & "~"
+
+            i++
+            If i = z Then Exit ForAll
+        End Forall
+
+        return rstr
+    Catch
+        Print "Error " & Error() & " on line " & Erl()
+    End Try
+End Function

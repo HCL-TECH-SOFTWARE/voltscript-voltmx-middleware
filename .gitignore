@@ -6,6 +6,7 @@ effective-atlas.json
 seti.ini
 unit-test-reports/*
 internal-atlas.json
+*_UNMERGED.vss
 
 #VS Code
 .devcontainer/*

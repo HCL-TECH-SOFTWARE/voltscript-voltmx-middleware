@@ -18,6 +18,9 @@ Option Public
 Use "extractObjectsTest"
 Use "updateTest"
 
+Use "jsonSortTestsBasic"
+Use "jsonSortTestsPaths"
+
 Sub Initialize
 
     Dim result as Boolean
@@ -33,9 +36,24 @@ Sub Initialize
     
     If result Then
         Print ""
-        Print "All tests ran successfully"
+        Print "All VoltMXObjects tests ran successfully"
+        Print ""
     Else
         Error 1001, "Tests Failed, tot was " & tot & ". Check results"
     End If
 
+    ' jsonSort Tests
+    result = runJsonSorterBasicTests()
+    If result Then tot = 1
+
+    lastResult = runJsonSorterPathTests()
+    result = result And lastResult
+    If lastResult Then tot += 2
+
+    If result Then
+        Print ""
+        Print "All jsonSort() tests ran successfully"
+    Else
+        Error 1001, "jsonSort() tests failed, tot was " & tot & ". Check Results"
+    End If
 End Sub

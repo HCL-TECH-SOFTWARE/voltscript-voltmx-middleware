@@ -1,0 +1,408 @@
+Option Public
+Option Explicit
+
+Use "../src/VoltMXObjects"
+Use "../libs/VoltScriptTesting"
+
+CONST TEST_DATA1_FILE$ = "/files/TEST_DATA1.json"
+
+
+Public Function runJsonSorterBasicTests()
+    Dim testRunner as New TestRunner("Test JsonSorter Basics")
+    Call testRunner.setOutputFormat("BOTH")
+    Dim retVal as Boolean
+
+    Try
+        Call testJsonSorterBasics(testRunner)
+    Catch
+        Print "Error " & Error() & " on line " & Erl()
+    End Try
+
+    retVal = True
+    Forall suite in testRunner.testSuites
+        retval = retval And suite.ranSuccessfully()
+    End Forall
+    Return retVal
+End Function
+
+Sub testJsonSorterBasics(testRunner as TestRunner)
+    Dim testSuite as New TestSuite("Test Basic jsonSort() Functionality")
+     Dim teststr as String, resultstr as String
+
+    Call testRunner.addTestSuite(testSuite)
+    
+    Try
+        teststr = "Aivee--~Avaveo--~Avaveo--~"
+        resultstr = testOneLabel()
+        Call testSuite.describe("One label test").assertEqualsString(teststr, resultstr, false)
+
+        teststr = "Aivee-Taborre-~Avaveo-Chilver-~Avaveo-Laxston-~"
+        resultstr = testTwoLabels()
+        Call testSuite.describe("Two label test").assertEqualsString(teststr, resultstr, false)
+        resultstr = testLabels1And3()
+        Call testSuite.describe("Labels 1 and 3 test").assertEqualsString(teststr, resultstr, false)
+
+        teststr = "Aivee-Taborre-Marcellus~Avaveo-Chilver-Regan~Avaveo-Laxston-Deva~"
+        resultstr = testJsonSortAscending()
+        Call testSuite.describe("Three level test of ascending").assertEqualsString(teststr, resultstr, false)
+
+        teststr = "Zoozzy-Cahan-Romonda~Zoomzone-Wattins-Prescott~Zoomdog-O'Doogan-Alysa~"
+        resultstr = testJsonSortDescending()
+        Call testSuite.describe("Three level test of descending").assertEqualsString(teststr, resultstr, false)
+
+    Catch
+        Call testSuite.addError("Error " & Error() & " on line " & Erl(), "")
+        Print "Error " & Error() & " on line " & Erl()
+    End Try
+End Sub
+
+Function testJsonSortAscending() as String
+    Dim parser as New JsonParser()
+    Dim dataobj as New JsonObject(true), newobj as JsonObject
+    Dim tobj as JsonObject
+    Dim labels(2) as String, i as Integer, z as Integer
+    Dim result(2) as String, rvar as Variant, rstr as String
+    Dim start as Double, finish as Double
+    Dim fpath as string
+
+    
+    labels(0) = "company"
+    labels(1) = "lastName"
+    labels(2) = "firstName"
+
+    z = 3
+
+    Try
+        Call parser.loadFromFile(CurDir() & TEST_DATA1_FILE)
+        Set dataObj = parser.getRootObject()
+
+        If dataobj Is Nothing Then
+            Print "Error: Unable to parse file " & fpath
+            Exit Function
+        End If
+
+        Set newobj = jsonSort(dataObj, labels(0), False, labels(1), False, labels(2), False, "")
+
+   ' now loop through the newobj and print the sorted data to show it works
+        Forall obj in newobj.GetChildren()   
+            Set tobj = obj 
+
+            If tobj.isChild(labels(0)) Then
+                rvar = tobj.getChild(labels(0)).ScalarValue
+                If isEmpty(rvar) Then 
+                    result(0) = "*empty*"
+                Else
+                    result(0) = Cstr(rvar)
+                End If
+            End IF
+            
+            If tobj.isChild(labels(1)) Then
+                rvar = tobj.getChild(labels(1)).ScalarValue
+                If isEmpty(rvar) Then 
+                    result(1) = "*empty*"
+                Else
+                    result(1) = Cstr(tobj.getChild(labels(1)).ScalarValue)
+                End If
+            End IF
+           
+           If tobj.isChild(labels(2)) Then
+                rvar = tobj.getChild(labels(2)).ScalarValue
+                If isEmpty(rvar) Then 
+                    result(2) = "*empty*"
+                Else
+                    result(2) = Cstr(tobj.getChild(labels(2)).ScalarValue)
+                End If
+            End IF
+           
+            rstr += result(0) & "-" & result(1) & "-" & result(2) & "~"
+
+            i++
+            If i = z Then Exit ForAll
+        End Forall
+
+        return rstr
+    Catch
+        Print "Error " & Error() & " on line " & Erl()
+    End Try
+End Function
+
+Function testJsonSortDescending() as String
+    Dim parser as New JsonParser()
+    Dim dataobj as New JsonObject(true), newobj as JsonObject
+    Dim tobj as JsonObject
+    Dim labels(2) as String, i as Integer, z as Integer
+    Dim result(2) as String, rvar as Variant, rstr as String
+    Dim start as Double, finish as Double
+    Dim fpath as string
+
+    
+    labels(0) = "company"
+    labels(1) = "lastName"
+    labels(2) = "firstName"
+
+    z = 3
+
+    Try
+        Call parser.loadFromFile(CurDir() & TEST_DATA1_FILE)
+        Set dataObj = parser.getRootObject()
+
+        If dataobj Is Nothing Then
+            Print "Error: Unable to parse file " & fpath
+            Exit Function
+        End If
+
+        Set newobj = jsonSort(dataObj, labels(0), True, labels(1), True, labels(2), True, "")
+
+   ' now loop through the newobj and print the sorted data to show it works
+        Forall obj in newobj.GetChildren()   
+            Set tobj = obj 
+
+            If tobj.isChild(labels(0)) Then
+                rvar = tobj.getChild(labels(0)).ScalarValue
+                If isEmpty(rvar) Then 
+                    result(0) = "*empty*"
+                Else
+                    result(0) = Cstr(rvar)
+                End If
+            End IF
+            
+            If tobj.isChild(labels(1)) Then
+                rvar = tobj.getChild(labels(1)).ScalarValue
+                If isEmpty(rvar) Then 
+                    result(1) = "*empty*"
+                Else
+                    result(1) = Cstr(tobj.getChild(labels(1)).ScalarValue)
+                End If
+            End IF
+           
+           If tobj.isChild(labels(2)) Then
+                rvar = tobj.getChild(labels(2)).ScalarValue
+                If isEmpty(rvar) Then 
+                    result(2) = "*empty*"
+                Else
+                    result(2) = Cstr(tobj.getChild(labels(2)).ScalarValue)
+                End If
+            End IF
+           
+            rstr += result(0) & "-" & result(1) & "-" & result(2) & "~"
+
+            i++
+            If i = z Then Exit ForAll
+        End Forall
+
+        return rstr
+    Catch
+        Print "Error " & Error() & " on line " & Erl()
+    End Try
+End Function
+
+Function testOneLabel() as String
+    Dim parser as New JsonParser()
+    Dim dataobj as New JsonObject(true), newobj as JsonObject
+    Dim tobj as JsonObject
+    Dim labels(2) as String, i as Integer, z as Integer
+    Dim result(2) as String, rvar as Variant, rstr as String
+    Dim start as Double, finish as Double
+    Dim fpath as string
+
+    
+    labels(0) = "company"
+    labels(1) = ""
+    labels(2) = ""
+
+    z = 3
+
+    Try
+        Call parser.loadFromFile(CurDir() & TEST_DATA1_FILE)
+        Set dataObj = parser.getRootObject()
+
+        If dataobj Is Nothing Then
+            Print "Error: Unable to parse file " & fpath
+            Exit Function
+        End If
+
+        Set newobj = jsonSort(dataObj, labels(0), False, labels(1), False, labels(2), False, "")
+
+   ' now loop through the newobj and print the sorted data to show it works
+        Forall obj in newobj.GetChildren()   
+            Set tobj = obj 
+
+            If tobj.isChild(labels(0)) Then
+                rvar = tobj.getChild(labels(0)).ScalarValue
+                If isEmpty(rvar) Then 
+                    result(0) = "*empty*"
+                Else
+                    result(0) = Cstr(rvar)
+                End If
+            End IF
+
+            If labels(1) != "" && tobj.isChild(labels(1)) Then 
+                rvar = tobj.getChild(labels(1)).ScalarValue
+                If isEmpty(rvar) Then 
+                    result(1) = "*empty*"
+                Else
+                    result(1) = Cstr(tobj.getChild(labels(1)).ScalarValue)
+                End If                
+            End IF
+            
+           
+           If labels(2) != "" && tobj.isChild(labels(2)) Then
+                rvar = tobj.getChild(labels(2)).ScalarValue
+                If isEmpty(rvar) Then 
+                    result(2) = "*empty*"
+                Else
+                    result(2) = Cstr(tobj.getChild(labels(2)).ScalarValue)
+                End If
+            End IF
+           
+            rstr += result(0) & "-" & result(1) & "-" & result(2) & "~"
+
+            i++
+            If i = z Then Exit ForAll
+        End Forall
+
+        return rstr
+    Catch
+        Print "Error " & Error() & " on line " & Erl()
+    End Try
+End Function
+
+Function testTwoLabels() as String
+    Dim parser as New JsonParser()
+    Dim dataobj as New JsonObject(true), newobj as JsonObject
+    Dim tobj as JsonObject
+    Dim labels(2) as String, i as Integer, z as Integer
+    Dim result(2) as String, rvar as Variant, rstr as String
+    Dim start as Double, finish as Double
+    Dim fpath as string
+
+    
+    labels(0) = "company"
+    labels(1) = "lastName"
+    labels(2) = ""
+
+    z = 3
+
+    Try
+        Call parser.loadFromFile(CurDir() & TEST_DATA1_FILE)
+        Set dataObj = parser.getRootObject()
+
+        If dataobj Is Nothing Then
+            Print "Error: Unable to parse file " & fpath
+            Exit Function
+        End If
+
+        Set newobj = jsonSort(dataObj, labels(0), False, labels(1), False, labels(2), False, "")
+
+   ' now loop through the newobj and print the sorted data to show it works
+        Forall obj in newobj.GetChildren()   
+            Set tobj = obj 
+
+            If tobj.isChild(labels(0)) Then
+                rvar = tobj.getChild(labels(0)).ScalarValue
+                If isEmpty(rvar) Then 
+                    result(0) = "*empty*"
+                Else
+                    result(0) = Cstr(rvar)
+                End If
+            End IF
+            
+            If labels(1) != "" && tobj.isChild(labels(1)) Then
+                rvar = tobj.getChild(labels(1)).ScalarValue
+                If isEmpty(rvar) Then 
+                    result(1) = "*empty*"
+                Else
+                    result(1) = Cstr(tobj.getChild(labels(1)).ScalarValue)
+                End If
+            End IF
+           
+           If labels(2) != "" && tobj.isChild(labels(2)) Then
+                rvar = tobj.getChild(labels(2)).ScalarValue
+                If isEmpty(rvar) Then 
+                    result(2) = "*empty*"
+                Else
+                    result(2) = Cstr(tobj.getChild(labels(2)).ScalarValue)
+                End If
+            End IF
+           
+            rstr += result(0) & "-" & result(1) & "-" & result(2) & "~"
+
+            i++
+            If i = z Then Exit ForAll
+        End Forall
+
+        return rstr
+    Catch
+        Print "Error " & Error() & " on line " & Erl()
+    End Try
+End Function
+
+Function testLabels1And3() as String
+    Dim parser as New JsonParser()
+    Dim dataobj as New JsonObject(true), newobj as JsonObject
+    Dim tobj as JsonObject
+    Dim labels(2) as String, i as Integer, z as Integer
+    Dim result(2) as String, rvar as Variant, rstr as String
+    Dim start as Double, finish as Double
+    Dim fpath as string
+
+    
+    labels(0) = "company"
+    labels(1) = ""
+    labels(2) = "lastName"
+
+    z = 3
+
+    Try
+        Call parser.loadFromFile(CurDir() & TEST_DATA1_FILE)
+        Set dataObj = parser.getRootObject()
+
+        If dataobj Is Nothing Then
+            Print "Error: Unable to parse file " & fpath
+            Exit Function
+        End If
+
+        Set newobj = jsonSort(dataObj, labels(0), False, labels(1), False, labels(2), False, "")
+
+   ' now loop through the newobj and print the sorted data to show it works
+        Forall obj in newobj.GetChildren()   
+            Set tobj = obj 
+
+            If tobj.isChild(labels(0)) Then
+                rvar = tobj.getChild(labels(0)).ScalarValue
+                If isEmpty(rvar) Then 
+                    result(0) = "*empty*"
+                Else
+                    result(0) = Cstr(rvar)
+                End If
+            End IF
+            
+            If labels(1) != "" && tobj.isChild(labels(1)) Then
+                rvar = tobj.getChild(labels(1)).ScalarValue
+                If isEmpty(rvar) Then 
+                    result(1) = "*empty*"
+                Else
+                    result(1) = Cstr(tobj.getChild(labels(1)).ScalarValue)
+                End If
+            End IF
+           
+           If labels(2) != "" && tobj.isChild(labels(2)) Then
+                rvar = tobj.getChild(labels(2)).ScalarValue
+                If isEmpty(rvar) Then 
+                    result(2) = "*empty*"
+                Else
+                    result(2) = Cstr(tobj.getChild(labels(2)).ScalarValue)
+                End If
+            End IF
+           
+            rstr += result(0) & "-" & result(1) & "-" & result(2) & "~"
+
+            i++
+            If i = z Then Exit ForAll
+        End Forall
+
+        return rstr
+    Catch
+        Print "Error " & Error() & " on line " & Erl()
+    End Try
+End Function
