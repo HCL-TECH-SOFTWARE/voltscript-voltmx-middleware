@@ -1197,7 +1197,6 @@ Public Sub extractObjects(data As String, isPreprocessor As Boolean)
 	'{{SETI_AUTHOR_CODE_extractObjects_implementation
     Set VoltMXResult = New VoltMxResultObject(isPreprocessor)
     Set VoltMxLogger = New VoltMxLoggerObject(VoltMxResult)
-
     Dim jsonParser as New JsonParser()
     Dim jsonObj as JsonObject
     Dim passedObj as JsonObject
@@ -1253,7 +1252,7 @@ Public Sub extractObjects(data As String, isPreprocessor As Boolean)
     Catch
         Error 400, getErrorMsg("EXTRACTOBJECTS: ")
     End Try
-
+	
 	'}}
 
 End Sub
@@ -1269,30 +1268,10 @@ End Sub
 %END REM
 Public Function getErrorMsg(prefix As String) As String 
 	'{{SETI_AUTHOR_CODE_getErrorMsg_implementation
-	Dim stack as Variant 
-	Dim result as String 
-	Dim i%
-
-	result = trim(prefix & | ERROR | & Err() & | at line | & Erl() & |, | & Error())
-
-	if (instr(result, chr(10)) > 0) then print |result has chr(10)|
-
-	stack = split(getThreadInfo(12), chr(10))
-
-	if Lbound(stack) < Ubound(stack) Then 
-		result = result & | [|
-
-		for i% = Lbound(stack) + 1 to Ubound(stack) 
-			if (len(trim(stack(i%))) > 0) Then 
-				result = result & strLeft(stack(i%), |,|) & |.| & join(split(strright(stack(i%), |,|), |,|), |:|)
-				if (i% < Ubound(stack)) && (len(trim(stack(i% + 1))) > 0) then result = result & |, |
-			end if 
-		next
-
-		result = result & |]|
-	end If 
-
-	return result 
+	If (Instr(Error(), "line ") > 0) Then
+		Return Error()
+	End If
+	Return prefix & " ERROR: " & Error() & " (" & Err() & "), line " & Erl() & getThreadInfo(12)
 	'}}
 
 End Function
@@ -1323,7 +1302,6 @@ End Function
 Public Function jsonSort(dataObj As JsonObject, lbl1 As String, lbl1Desc As Boolean, lbl2 As String, lbl2Desc As Boolean, lbl3 As String, lbl3Desc As Boolean, delim As String) As JsonObject 
 	'{{SETI_AUTHOR_CODE_jsonSort_implementation
 	Dim jlabelobj as New jsonSortLabels()
-    Dim parser as New JsonParser
     Dim compar as jsonComparator
     Dim col as Collection
     Dim jobj as JsonObject, jarr as JsonObject
@@ -1332,6 +1310,7 @@ Public Function jsonSort(dataObj As JsonObject, lbl1 As String, lbl1Desc As Bool
 
     Try
         If dataObj is Nothing Then Error 1100, "ERROR: dataObj is required"
+		If dataObj.childCount = 0 Then Return dataObj
         ' lbl1 is required. If lbl2 is not provided, but lbl3 is, set lbl2 to lbl3 and lbl3 to "".
         If lbl1 = "" Then Error 1101, "ERROR: label1 is required"
         If lbl2 = "" and lbl3 != "" Then
@@ -1346,8 +1325,7 @@ Public Function jsonSort(dataObj As JsonObject, lbl1 As String, lbl1Desc As Bool
 
         Set col = new Collection("JSONOBJECT", compar, False, True )
 
-        Call parser.loadFromJson(|[]|) ' array to hold the sorted json objects
-        Set jarr = parser.getRootObject()
+        Set jarr = new JsonObject(True)
 
         Forall child in dataObj.getChildren()
             Set cobj = child

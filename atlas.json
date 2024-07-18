@@ -8,7 +8,7 @@
         "Paul Withers"
     ],
     "library": "voltscript-voltmx-middleware",
-    "version":"1.0.0",
+    "version":"1.0.1",
     "sourceDir": "src",
     "testDir": "test",
     "libsDir": "libs",
@@ -22,7 +22,7 @@
         {
             "id": "volt-mx-marketplace",
             "type": "marketplace",
-            "url": "https://community.demo-hclvoltmx.com/marketplace/asset"
+            "url": "https://community.hclvoltmx.com/marketplace/asset"
         },
         {
             "id": "hcl-github",

@@ -14,9 +14,10 @@ sequenceDiagram
     Foundry->>UI: Send response / error
 ```
 
---8<-- "prepost.md"
+!!! note
+    Preprocessors and postprocessors cannot be added to a VoltScript Integration Service in Foundry. Instead, add the relevant validation or manipulation in the main VoltScript Integration Service code. This will minimize the processing time.
 
-For a preprocessor, if the code ends with `return false`, an abort signal is sent back to Foundry in the `VoltMXResult`. On finding that, Foundry aborts the integration service and no further steps in the process will be performed. So the processing is:
+If `VoltMxResult.setErrorMessage()` is called, an error is returned from the Integration Service and no further steps in the process will be performed. So the processing is:
 
 ```mermaid
 sequenceDiagram
@@ -27,7 +28,7 @@ sequenceDiagram
     UI->>Foundry: REST service request
     Foundry->>is: Trigger preprocessor
     is->>Foundry: Sends result
-    opt return false
+    opt VoltMxResult.setErrorMessage("an error")
     Foundry->>UI: Send response
     end
     Foundry->>is: Trigger main integration service

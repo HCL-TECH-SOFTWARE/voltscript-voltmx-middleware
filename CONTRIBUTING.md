@@ -25,6 +25,9 @@ If you want to get involved in a role (including ones we may have missed!) reach
 ## Development Environment
 
 - Develop code with Visual Studio Code and VoltScript extensions, see https://help.hcltechsw.com/docs/voltscript/early-access/howto/writing/index.html.
+- For new classes, methods, variables etc:
+    - Add to VSID
+    - Actions > Generate > Library Code Stubs, point to the base directory of the repo. It will automatically add to src directory.
 - Documentation uses Material for MKDocs framework:
     - Write documentation in the relevant area of the docs directory.
     - Preview documentation using MKDocs, either [locally installed with relevant plugins](https://squidfunk.github.io/mkdocs-material/getting-started/) or using the [MKDocs HCL Container Image](https://github.com/HCL-TECH-SOFTWARE/hcl-mkdocs-build-image)

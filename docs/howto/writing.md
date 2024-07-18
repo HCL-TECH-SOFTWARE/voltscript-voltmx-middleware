@@ -1,6 +1,6 @@
 # Write VoltScript Volt MX Middleware functions
 
-VoltScript can be used in Integration Services or Pre and Post Processors.
+VoltScript can be used in Integration Services or preprocessors and postprocessors.
 
 - Integration services are REST service operations coded completely in VoltScript.
 - VoltScript preprocessors are VoltScript functions run *before* triggering an external REST service call. They return true (the default) to continue processing or false to abort processing.

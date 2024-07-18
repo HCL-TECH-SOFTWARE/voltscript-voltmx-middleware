@@ -1,8 +1,6 @@
 # Understanding the boilerplate
 
-The **Foundry boilerplate** snippet provides the boilerplate code for a VoltScript integration service in Foundry. It's also used for preprocessors and postprocessors.
-
---8<-- "prepost.md"
+The **Foundry boilerplate** snippet provides the boilerplate code for a VoltScript integration service in Foundry.
 
 ## Boilerplate snippet
 
