@@ -10,4 +10,4 @@
     - HTTP response headers and device headers
 
 - Provides access to the Volt MX Logger object for writing debug messages to the Volt MX Foundry application logs.
-- Volt MX Result object for updating the Volt MX Foundry objects.
+- Utilizes [VoltMX Result Object](../references/apidoc/VoltMXObjects_VSID/VoltMXObjects_Library/VoltMxResultObject_ObjectClass.html){: target="_blank" rel="noopener noreferrer"} for updating the Volt MX Foundry objects.

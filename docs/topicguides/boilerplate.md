@@ -48,9 +48,9 @@ End Function
 - Dependencies are added in lines 4 and 5.
 - Context is created in line 8 and the data loaded into the `data` string at line 12.
 
-    - If a JWT token is passed in the context, this automatically get passed to a new `KeepServer` object.
+    - If a **JWT Token** is passed in the context it will be automatically passed to a new `KeepServer` object.
 
-- `extractObjects()` function is called at line 13 to load the passed JSON object into VoltMXRequest, VoltMXSession, VoltMXResponse and VoltMXResult objects.
+- The `extractObjects()` method is called at line 13.  This instantiates the [VoltMXRequest](../references/apidoc/VoltMXObjects_VSID/VoltMXObjects_Library/VoltMxRequestObject_ObjectClass.html){: target="_blank" rel="noopener noreferrer"}, [VoltMXSession](../references/apidoc/VoltMXObjects_VSID/VoltMXObjects_Library/VoltMxSessionObject_ObjectClass.html){: target="_blank" rel="noopener noreferrer"}, [VoltMXResponse](../references/apidoc/VoltMXObjects_VSID/VoltMXObjects_Library/VoltMxResponseObject_ObjectClass.html){: target="_blank" rel="noopener noreferrer"} and [VoltMXResult](../references/apidoc/VoltMXObjects_VSID/VoltMXObjects_Library/VoltMxResultObject_ObjectClass.html){: target="_blank" rel="noopener noreferrer"} objects using content from the passed JSON object.  Calling this method is **extremely important**; failure to do so will lead to erractic behavior or failures in your VoltScript code.
 - Custom code can be entered in the area between the comments, at line 18.
 - If an error occurs, `VoltMXResult.setMessage()` is called at line 24, parsing the error using the `getErrorMsg()` function.
 - The VoltMXResult object is converted to a JSON string and printed out. The VoltScript runtime passes this back to Foundry.
