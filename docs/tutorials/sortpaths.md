@@ -33,7 +33,7 @@ In The Basics tutorial we built a working example using jsonSort(), and used "fi
 ```
 That's where *label paths* come in. jsonSort() has the ability for you to provide a delimited "path" to the label on which you wish to sort. And the JsonObject class has methods to help you access these label path values. Let's take a look...
 
-## Before We Begin...
+## Before we begin
 We're going to build upon the work we did in The Basics tutorial. If you didn't actually complete the tutorial, here's the completed code from it - assuming you've already set up your VS Code environment and loaded the necessary files, simply copy this code and paste it into VS Code.
 
 ???example "Completed JSON Sort - The Basics Example"
@@ -128,7 +128,7 @@ We're going to build upon the work we did in The Basics tutorial. If you didn't 
         End Sub
     ```
 
-## Change the File Path and Labels
+## Change the file path and labels
 The first thing we need to do is change the file path to point to our new JSON data file. After that, let's modify the labels we use for the sort to use paths. We also need to specify the *delimiter* we're using to separate the parts of the label path - in this case we're using a forward slash (`/`).
 
 !!! Note
@@ -164,7 +164,7 @@ The beginning of your code should now look something like this...
         delim = "/"
 ```
 
-## Verifying and Retrieving Label Path Values
+## Verifying and retrieving label path values
 In our Basics code we used `jsonObject.isChild()` and `jsonObject.getChild()` to verify and retrieve label values; however these calls only work for first-level labels. In order for us to access values from a label path, we need to use different calls - `jsonObject.isDescendantPath()` and `jsonObject.getDescendantPath()`.
 
 !!! Note
@@ -202,7 +202,7 @@ And each of the label code blocks should look like this:
     End If
 ```
 
-### One More Thing to Fix...
+### One more thing to fix
 The last small change we need to make is the example printout labels. Change the Print line from this:
 
 ```vbscript
@@ -215,7 +215,7 @@ To this:
     Print "company: " & results(0) & ", state: " & results(1) & ", city: " & results(2)
 ```
 
-## Test Our Code
+## Test our code
 Now let's take a look at our results. With your cursor in your code, type CTRL + F5, and hit ENTER. You should get results like this:
 
 ```

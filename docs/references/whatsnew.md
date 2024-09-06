@@ -10,12 +10,12 @@ The section provides information on the latest features, improvements, and resol
     ## v1.0.1
     **Improvements**
 
-    - Added jsonSort function and associated classes
+    - Added jsonSort function and associated classes.
     - Added VSID database to repo. **NOTE:** jsonComparator class is not set to derived in NSF because of [VSID issue](https://github.com/HCL-TECH-SOFTWARE/voltscript-interface-designer/issues/1). If code is regenerated from NSF, class signature and constructor signature require manual fixup.
-    - <span style="color:red">Repointing atlas.json from demo marketplace. atlas-settings marketplace url will need updating to "https://accounts.auth.hclvoltmx.net/login"</span>
-    - <span style="color:red">addDeviceHeader() methods amended to take a string</span>
+    - <span style="color:red">Repointing atlas.json from demo marketplace. atlas-settings marketplace url will need updating to "https://accounts.auth.hclvoltmx.net/login".</span>
+    - <span style="color:red">Amended addDeviceHeader() methods to take a string.</span>
 
-???+ info "v1.0.0 - What's new or changed"
+??? info "v1.0.0 - What's new or changed"
     ## v1.0.0
 
     - First release version of VoltScript Volt MX Middleware.
