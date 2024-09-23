@@ -14,7 +14,7 @@ The following code can be used to validate a username parameter in a VoltScript 
 Dim username as String
 username = VoltMxRequest.getInputParam("username")
 If (username = "") Then
-    VoltMxResult.setErrorMessage("Username is required")
+    Call VoltMxResult.setErrorMessage("Username is required")
     Return False
 End If
 ```
