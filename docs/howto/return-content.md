@@ -10,7 +10,7 @@ Volt MX Foundry always returns a JSON object, always including "opstatus" and "h
 
 !!! warning
 
-    Using `VoltMXResult.result.appendToJSONArray()` will throw an error, because `result` is always a JSON object, not a JSON array.
+    Using `Call VoltMXResult.result.appendToJSONArray()` will throw an error, because `result` is always a JSON object, not a JSON array.
 
 You do not need to explicitly add opstatus and httpStatusCode to the `VoltMXResult.result` object. These will automatically be appended from the relevant properties before the output is printed.
 
