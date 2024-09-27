@@ -49,7 +49,7 @@ You'll need the relevant dependency to add to your **dependencies** or **testDep
 ```json
         {
             "library": "voltscript-voltmx-middleware",
-            "version": "1.0.1",
+            "version": "1.0.2",
             "module": "VoltMXObjects.vss",
             "repository": "hcl-github"
         }
