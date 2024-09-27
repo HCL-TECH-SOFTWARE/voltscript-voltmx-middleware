@@ -46,6 +46,9 @@ List of [frequently asked questions](FAQs.md) related to VoltScript Volt MX Midd
     - [Source code](https://github.com/HCL-TECH-SOFTWARE/voltscript-console-colors){: target="_blank" rel="noopener noreferrer"}
 - VoltScript Interface Designer
     - [Documentation](https://opensource.hcltechsw.com/voltscript-interface-designer){: target="_blank" rel="noopener noreferrer"}
+- VoltScript Logging
+    - [Documentation](https://opensource.hcltechsw.com/voltscript-logging){: target="_blank" rel="noopener noreferrer"}
+    - [Source code](https://github.com/HCL-TECH-SOFTWARE/voltscript-logging){: target="_blank" rel="noopener noreferrer"}
 
 ## Support
 
