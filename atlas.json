@@ -36,6 +36,12 @@
             "version": "1.0.4",
             "module": "VoltScriptCollections.vss",
             "repository": "hcl-github"
+        },
+        {
+            "library": "voltscript-logging",
+            "version": "1.0.1",
+            "module": "VoltScriptLogging.vss",
+            "repository": "hcl-github"
         }
     ],
     "testDependencies": [

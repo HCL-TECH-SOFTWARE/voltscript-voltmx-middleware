@@ -1,9 +1,23 @@
+		'{{SETI_AUTHOR_CODE_terminateLog_implementation
+		'}}
+		'{{SETI_AUTHOR_CODE_outputLogEntryMessage_implementation
+		'}}
+		'{{SETI_AUTHOR_CODE_initializeLog_implementation
+		'}}
+		'{{SETI_AUTHOR_CODE_New_implementation
+		'}}
+	'{{SETI_AUTHOR_CODE_FoundryLogWriter_Private_Variables
+	'}}
+	'{{SETI_AUTHOR_CODE_FoundryLogWriter_Private_Properties
+	'}}
 %REM
 	Library VoltMXObjects 
 
 %END REM
 
 '{{VSID_COPYRIGHT_NOTICE_
+	'{{SETI_AUTHOR_CODE_VoltMxLoggerObject_Private_Methods
+	'}} 
 %REM
     Copyright HCL America, Inc. 1999, 2023
 
@@ -24,12 +38,16 @@
 Option Declare
 Option Public
 Use "../libs/VoltScriptCollections"
+Use "../libs/VoltScriptLogging"
 
 UseVSE "*JsonVSE"
+UseVSE "*ContextVSE"
 
 
 
 	'{{SETI_AUTHOR_CODE_VoltMxLogger_Private_Methods
+	'}} 
+	'{{SETI_AUTHOR_CODE_FoundryLogWriter_Private_Methods
 	'}} 
 '{{SETI_AUTHOR_CODE_VoltMXObjects_Private_Constants
 Private Const IS_PREPROCESSOR_PARAM = "isPreprocessor"
@@ -46,11 +64,10 @@ Private Const IDENTITY_PARAM = "identity"
 '}}
 
 '{{Variables
-Public VoltMxSession As VoltMxSessionObject 	 ' Instance of VoltMxSessionObject parsed from Foundry input by extractObjects.
+Public VoltMxResult As VoltMxResultObject 	 ' Instance of VoltMxResultObject parsed from Foundry input by extractObjects.
 Public VoltMxRequest As VoltMxRequestObject 	 ' Instance of VoltMxRequestObject parsed from Foundry input by extractObjects.
 Public VoltMxResponse As VoltMxResponseObject 	 ' Instance of VoltMxResponseObject parsed from Foundry input by extractObjects.
-Public VoltMxResult As VoltMxResultObject 	 ' Instance of VoltMxResultObject parsed from Foundry input by extractObjects.
-Public VoltMxLogger As VoltMxLoggerObject 	 ' Instance of VoltMxLogger object created by extractObjects. This is used to pass debug messages for Java logging.
+Public VoltMxSession As VoltMxSessionObject 	 ' Instance of VoltMxSessionObject parsed from Foundry input by extractObjects.
 Public PROJECT_DIR As String 	 ' Main directory of the project, required because CurDir returns the VoltScript program directory. Use this to retrieve resource files within the project directory, and set manually for unit tests.
 '}}
 
@@ -74,13 +91,13 @@ Private passedCtx as New JsonObject()
 Public Class HttpCookie 
 
 	'{{Variables
+	Public path As String 	 ' Path element of the cookie.
 	Public name As String 	 ' Name element of the cookie.
 	Public value As String 	 ' Value element of the cookie.
+	Public domain As String 	 ' Domain element of the cookie.
+	Public isSecure As Boolean 	 ' Whether or not the cookie is secure.
 	Public expiryDate As String 	 ' Expiry date element of the cookie.
 	Public persistent As Boolean 	 ' Boolean value for whether or not the cookie persists.
-	Public domain As String 	 ' Domain element of the cookie.
-	Public path As String 	 ' Path element of the cookie.
-	Public isSecure As Boolean 	 ' Whether or not the cookie is secur.
 	'}}
 
 	'{{SETI_AUTHOR_CODE_HttpCookie_Private_Variables
@@ -109,9 +126,9 @@ End Class
 %REM
 	Class jsonComparator 
 	This class is used by the jsonSort class to compare two JSON objects based on the labels and sort orders provided.
-	Extends Comparator, which is in VoltScriptCollections.vss
+ 
 %END REM
-Public Class jsonComparator as Comparator
+Public Class jsonComparator as Comparator 
 
 	'{{SETI_AUTHOR_CODE_jsonComparator_Private_Variables
 	    Private compLabels as jsonSortLabels
@@ -128,7 +145,7 @@ Public Class jsonComparator as Comparator
 		@param	isDescending 	
 		@param	jlabelobj 	
 	%END REM
-	Public Sub New(isDescending As Boolean, jlabelobj As jsonSortLabels), Comparator(isDescending)
+	Public Sub New(isDescending As Boolean, jlabelobj As jsonSortLabels), Comparator(isDescending) 
 		'{{SETI_AUTHOR_CODE_New_implementation
 		Set compLabels = jlabelobj
 		'}}
@@ -137,16 +154,15 @@ Public Class jsonComparator as Comparator
 
 
 	%REM
-		Function Compare
+		Function Compare 
 		This method will compare two JSON objects based on the labels provided.
-		It will return 1, -1, or 0 based on the comparison.
-		IsDescending flags for each label will be used to flip the comparison if necessary.
+	
 		@param	src 	
 		@param	tgt 	
 		@return	Integer
 	%END REM
 	Public Function Compare(src As Variant, tgt As Variant) As Integer 
-		'{{SETI_AUTHOR_CODE_Compare2_implementation
+		'{{SETI_AUTHOR_CODE_Compare_implementation
 		Dim srcobj as JsonObject, tgtobj as JsonObject
         Dim sobj as JsonObject, tobj as JsonObject
         Dim srcval as Variant, tgtval as Variant
@@ -154,7 +170,7 @@ Public Class jsonComparator as Comparator
 
         Set srcobj = src
         Set tgtobj = tgt
- 
+
      ' sort on label1
         If srcobj.isDescendantPath(complabels.label1, compLabels.delim) Then
             Set sobj = srcobj.getDescendantPath(compLabels.label1, compLabels.delim)
@@ -170,7 +186,7 @@ Public Class jsonComparator as Comparator
         Else
             srcval = ""
         End If
-        
+
         If tgtobj.isDescendantPath(complabels.label1, compLabels.delim) Then
             Set tobj = tgtobj.getDescendantPath(compLabels.label1, compLabels.delim)
             If Not(tobj is Nothing) Then
@@ -196,7 +212,7 @@ Public Class jsonComparator as Comparator
         If rint <> 0 Then
             Return rint
         End If
-        
+
     ' sort on label2
         If complabels.label2 <> "" Then
             If srcobj.isDescendantPath(complabels.label2, compLabels.delim) Then
@@ -228,7 +244,7 @@ Public Class jsonComparator as Comparator
             Else
                 tgtval = ""
             End If
-        
+
             ' now that we have our values for comparison, do the compare and get the result
             rint = Comparator..compare(srcval, tgtval)
             If complabels.label2IsDesc Then
@@ -257,7 +273,7 @@ Public Class jsonComparator as Comparator
             Else
                 srcval = ""
             End If
-            
+
             If tgtobj.isDescendantPath(complabels.label3, compLabels.delim) Then
                 Set tobj = tgtobj.getDescendantPath(compLabels.label3, compLabels.delim)
                 If Not(tobj is Nothing) Then
@@ -280,7 +296,7 @@ Public Class jsonComparator as Comparator
             End If
 
             Return rint
-            
+
         End If
 		'}}
 
@@ -294,13 +310,10 @@ End Class
 
 %REM
 	Class jsonSortLabels 
-	This class is used to store the labels, sort order, and delimiter for the jsonSort function. 
+	This class is used to store the labels, sort order, and delimiter for the jsonSort class. The class is used by the jsonSort class to sort the JSON objects.
  
 %END REM
 Public Class jsonSortLabels 
-
-	'{{Variables
-	'}}
 
 	'{{SETI_AUTHOR_CODE_jsonSortLabels_Private_Variables
 	'}}
@@ -374,7 +387,7 @@ Public Class jsonSortLabels
 
 	%REM
 		Sub setLabels 
-		Simple method to set the labels, sort orders, and delimiter
+		Simple method to set the labels, sort order, and delimiter
 	
 		@param	label1 	
 		@param	label1IsDesc 	
@@ -409,56 +422,6 @@ End Class
 
 
 %REM
-	Class VoltMxLoggerObject 
-	Class for passing debug messages back to Foundry's Java logger.
- 
-%END REM
-Public Class VoltMxLoggerObject 
-
-	'{{SETI_AUTHOR_CODE_VoltMxLoggerObject_Private_Variables
-    Private result as VoltMxResultObject
-	'}}
-
-	'{{SETI_AUTHOR_CODE_VoltMxLoggerObject_Private_Properties
-	'}}
-
-
-	%REM
-		Sub New 
-		Constructor. This is automatically called during extractObjects() and should not be run manually.
-	
-		@param	result 	Result object that will be passed back to Foundry
-
-	%END REM
-	Public Sub New(result As VoltMxResultObject) 
-		'{{SETI_AUTHOR_CODE_New_implementation
-        Set Me.result = result
-		'}}
-
-	End Sub
-
-
-	%REM
-		Sub debug 
-		Create a debug message. This proxies the addDebugMessage() method in VoltMxResult objcet. The message will be added to Volt MX's Java logs, if setting is changed to output debug messages.
-	
-		@param	message 	Message to debug
-
-	%END REM
-	Public Sub debug(message As String) 
-		'{{SETI_AUTHOR_CODE_debug_implementation
-        Call Me.result.addDebugMessage(message)
-		'}}
-
-	End Sub
-
-	'{{SETI_AUTHOR_CODE_VoltMxLoggerObject_Private_Methods
-	'}} 
-
-End Class 
-
-
-%REM
 	Class VoltMxRequestObject 
 	Class for interacting with Foundry request.
  
@@ -475,6 +438,42 @@ Public Class VoltMxRequestObject
 
 	'{{SETI_AUTHOR_CODE_VoltMxRequestObject_Private_Properties
 	'}}
+
+
+	%REM
+		Sub addRequestParam 
+		Adds a request parameter to the Foundry request. This proxies the corresponding method in VoltMxResult. Only relevant for preprocessors.
+	
+		@param	key 	Key for the request parameter
+
+		@param	value 	Value for the request parameter
+
+		@throws	Adding request parameters is only relevant for PreProcessors 	
+	%END REM
+	Public Sub addRequestParam(key As String, value As Variant) 
+		'{{SETI_AUTHOR_CODE_addRequestParam_implementation
+        Call Me.result.addRequestParam(key, value)
+		'}}
+
+	End Sub
+
+
+	%REM
+		Sub addInputParam 
+		Adds an input parameter for the Foundry integration service. This proxies the corresponding function in VotMxResult object. Only relevant for preprocessors.
+	
+		@param	key 	Key for the input parameter
+
+		@param	value 	Value for the input parameter. This should be a scalar.
+
+		@throws	Adding input parameters is only relevant for PreProcessors 	
+	%END REM
+	Public Sub addInputParam(key As String, value As Variant) 
+		'{{SETI_AUTHOR_CODE_addInputParam_implementation
+        Call Me.result.addInputParam(key, value)
+		'}}
+
+	End Sub
 
 
 	%REM
@@ -517,39 +516,33 @@ Public Class VoltMxRequestObject
 
 
 	%REM
-		Sub addInputParam 
-		Adds an input parameter for the Foundry integration service. This proxies the corresponding function in VotMxResult object. Only relevant for preprocessors.
+		Function getHeaderParam 
+		Gets a header parameter from the Foundry request.
 	
-		@param	key 	Key for the input parameter
+		@param	key 	Key for the header parameter
 
-		@param	value 	Value for the input parameter. This should be a scalar.
-
-		@throws	Adding input parameters is only relevant for PreProcessors 	
+		@return	Variant
 	%END REM
-	Public Sub addInputParam(key As String, value As Variant) 
-		'{{SETI_AUTHOR_CODE_addInputParam_implementation
-        Call Me.result.addInputParam(key, value)
+	Public Function getHeaderParam(key As String) As Variant 
+		'{{SETI_AUTHOR_CODE_getHeaderParam_implementation
+        Return wrapEmpty(Me.headers_.getValueRawByKey(key))
 		'}}
 
-	End Sub
+	End Function
 
 
 	%REM
-		Sub addRequestParam 
-		Adds a request parameter to the Foundry request. This proxies the corresponding method in VoltMxResult. Only relevant for preprocessors.
+		Function getIdentityParam 
+		Gets a parameter from the JWT token for an identity service associated with this integration service, or an empty string if no identity service is assigned to this integration service.
 	
-		@param	key 	Key for the request parameter
-
-		@param	value 	Value for the request parameter
-
-		@throws	Adding request parameters is only relevant for PreProcessors 	
+		@return	String
 	%END REM
-	Public Sub addRequestParam(key As String, value As Variant) 
-		'{{SETI_AUTHOR_CODE_addRequestParam_implementation
-        Call Me.result.addRequestParam(key, value)
+	Public Function getIdentityParam() As String 
+		'{{SETI_AUTHOR_CODE_getIdentityParam_implementation
+        Return me.identity_
 		'}}
 
-	End Sub
+	End Function
 
 
 	%REM
@@ -569,22 +562,6 @@ Public Class VoltMxRequestObject
 
 
 	%REM
-		Function getHeaderParam 
-		Gets a header parameter from the Foundry request.
-	
-		@param	key 	Key for the header parameter
-
-		@return	Variant
-	%END REM
-	Public Function getHeaderParam(key As String) As Variant 
-		'{{SETI_AUTHOR_CODE_getHeaderParam_implementation
-        Return wrapEmpty(Me.headers_.getValueRawByKey(key))
-		'}}
-
-	End Function
-
-
-	%REM
 		Function getRequestParam 
 		Gets a Foundry request parameter. These are parameters like appID, used for internal Foundry processing. This is not for input parameters defined in the Foundry integration service mapping.
 	
@@ -595,20 +572,6 @@ Public Class VoltMxRequestObject
 	Public Function getRequestParam(key As String) As Variant 
 		'{{SETI_AUTHOR_CODE_getRequestParam_implementation
         Return wrapEmpty(Me.requestParams_.getValueRawByKey(key))
-		'}}
-
-	End Function
-
-
-	%REM
-		Function getIdentityParam 
-		Gets a parameter from the JWT token for an identity service associated with this integration service, or an empty string if no identity service is assigned to this integration service.
-	
-		@return	String
-	%END REM
-	Public Function getIdentityParam() As String 
-		'{{SETI_AUTHOR_CODE_getIdentityParam_implementation
-        Return me.identity_
 		'}}
 
 	End Function
@@ -708,16 +671,14 @@ Public Class VoltMxResponseObject
 
 
 	%REM
-		Function getHeaderParam 
-		Gets a header parameter from the Foundry response. This is only relevant for postprocessors.
+		Function getStatusCode 
+		Gets the status code of the Foundry response. This is only relevant for postprocessors.
 	
-		@param	key 	Key for the header parameter
-
-		@return	Variant
+		@return	Integer
 	%END REM
-	Public Function getHeaderParam(key As String) As Variant 
-		'{{SETI_AUTHOR_CODE_getHeaderParam_implementation
-        Return wrapEmpty(Me.headers_.getValueRawByKey(key))
+	Public Function getStatusCode() As Integer 
+		'{{SETI_AUTHOR_CODE_getStatusCode_implementation
+        Return me.statusCode
 		'}}
 
 	End Function
@@ -740,14 +701,16 @@ Public Class VoltMxResponseObject
 
 
 	%REM
-		Function getStatusCode 
-		Gets the status code of the Foundry response. This is only relevant for postprocessors.
+		Function getHeaderParam 
+		Gets a header parameter from the Foundry response. This is only relevant for postprocessors.
 	
-		@return	Integer
+		@param	key 	Key for the header parameter
+
+		@return	Variant
 	%END REM
-	Public Function getStatusCode() As Integer 
-		'{{SETI_AUTHOR_CODE_getStatusCode_implementation
-        Return me.statusCode
+	Public Function getHeaderParam(key As String) As Variant 
+		'{{SETI_AUTHOR_CODE_getHeaderParam_implementation
+        Return wrapEmpty(Me.headers_.getValueRawByKey(key))
 		'}}
 
 	End Function
@@ -774,8 +737,8 @@ Public Class VoltMxResultObject
     Private headerParams_ as JsonObject
     Private deviceHeaderParams_ as JsonObject
     Private sessionAttributes_ as JsonObject
-    Private debugMessages_ as JsonObject
     Private result_ as JsonObject
+	Private foundryWriter_ as FoundryLogWriter
     Private error_ as String
 	'}}
 
@@ -789,34 +752,6 @@ Public Class VoltMxResultObject
 	Public Property Get result As JsonObject 
 		'{{SETI_AUTHOR_CODE_Get.result_implementation
         Return Me.result_
-		'}}
-
-	End Property
-
-
-	%REM
-		Property opstatus 
-		Opstatus that will be returned from the integration service.
-	
-		@return	Integer
-	%END REM
-	Public Property Get opstatus As Integer 
-		'{{SETI_AUTHOR_CODE_Get.opstatus_implementation
-        Return Me.opstatus_
-		'}}
-
-	End Property
-
-
-	%REM
-		Property opstatus 
-		Opstatus that will be returned from the integration service.
-	
-	%END REM
-	Public Property Set opstatus As Integer 
-		'{{SETI_AUTHOR_CODE_Set.opstatus_implementation
-        Me.opstatus_ = opstatus
-        Call Me.result_.insertValue(OPSTATUS_PARAM, Me.opstatus_)
 		'}}
 
 	End Property
@@ -849,8 +784,67 @@ Public Class VoltMxResultObject
 
 	End Property
 
+
+	%REM
+		Property opstatus 
+		Opstatus that will be returned from the integration service.
+	
+		@return	Integer
+	%END REM
+	Public Property Get opstatus As Integer 
+		'{{SETI_AUTHOR_CODE_Get.opstatus_implementation
+        Return Me.opstatus_
+		'}}
+
+	End Property
+
+
+	%REM
+		Property opstatus 
+		Opstatus that will be returned from the integration service.
+	
+	%END REM
+	Public Property Set opstatus As Integer 
+		'{{SETI_AUTHOR_CODE_Set.opstatus_implementation
+        Me.opstatus_ = opstatus
+        Call Me.result_.insertValue(OPSTATUS_PARAM, Me.opstatus_)
+		'}}
+
+	End Property
+
 	'{{SETI_AUTHOR_CODE_VoltMxResultObject_Private_Properties
 	'}}
+
+
+	%REM
+		Sub echoHttpServerContext 
+		Copies the incoming unit test context for VoltScript HTTP server into the result, the unitTestContext element outputed by setting "vsTestingContext":true in integration services.
+	
+	%END REM
+	Public Sub echoHttpServerContext() 
+		'{{SETI_AUTHOR_CODE_echoHttpServerContext_implementation
+		Dim jsonObj as New JsonObject()
+		Call jsonObj.insertValue("context", passedCtx)
+		If (VoltMxRequest.getIdentityParam != "") Then
+			Call jsonObj.insertValue("jwttoken", VoltMxRequest.getIdentityParam)
+		End If
+		Call Me.result.insertValue("httpServerContext", jsonObj)
+		'}}
+
+	End Sub
+
+
+	%REM
+		Sub echoUnitTestContext 
+		Copies the incoming unit test context for VoltScript HTTP server into the result, the unitTestContext element outputed by setting "vsTestingContext":true in integration services.
+	
+	%END REM
+	Public Sub echoUnitTestContext() 
+		'{{SETI_AUTHOR_CODE_echoUnitTestContext_implementation
+		Call Me.result.insertValue("unitTestContext", passedCtx)
+		'}}
+
+	End Sub
 
 
 	%REM
@@ -869,127 +863,9 @@ Public Class VoltMxResultObject
         Set Me.headerParams_ = new JsonObject()
         Set Me.deviceHeaderParams_ = new JsonObject()
         Set me.result_ = new JsonObject()
-        Set Me.debugMessages_ = new JsonObject(True)
-		'}}
-
-	End Sub
-
-
-	%REM
-		Sub addRequestParam 
-		Adds a request parameter to the Foundry request. Only relevant for preprocessors.
-	
-		@param	key 	Key for the request parameter
-
-		@param	value 	Value for the request parameter
-
-		@throws	Adding request parameters is only relevant for PreProcessors 	
-	%END REM
-	Public Sub addRequestParam(key As String, value As Variant) 
-		'{{SETI_AUTHOR_CODE_addRequestParam_implementation
-        If Not Me.isPreProcessor Then
-            Error 1001, "Adding request parameters is only relevant for PreProcessors"
-        Else
-            Call Me.requestParams_.insertValue(key, value)
-        End If
-		'}}
-
-	End Sub
-
-
-	%REM
-		Sub addHeaderParam 
-		Adds a header param to the Foundry response.
-	
-		@param	key 	Key for the Foundry response parameter
-
-		@param	value 	Value for the Foundry response parameter
-
-		@throws	Adding header parameters is not relevant for PreProcessors 	
-	%END REM
-	Public Sub addHeaderParam(key As String, value As Variant) 
-		'{{SETI_AUTHOR_CODE_addHeaderParam_implementation
-        If Me.isPreProcessor Then
-            Error 1001, "Adding response header parameters is not relevant for PreProcessors"
-        Else
-            Call Me.headerParams_.insertValue(key, value)
-        End If
-		'}}
-
-	End Sub
-
-
-	%REM
-		Sub addDeviceHeaderParam 
-		Adds a device header parameter for the Foundry response.
-	
-		@param	key 	Key of the device header parameter
-
-		@param	value 	String value for the device header parameter
-
-		@throws	Adding response device header parameters is not relevant for PreProcessors 	
-	%END REM
-	Public Sub addDeviceHeaderParam(key As String, value As String) 
-		'{{SETI_AUTHOR_CODE_addDeviceHeaderParam_implementation
-        If Me.isPreProcessor Then
-            Error 1001, "Adding response device header parameters is not relevant for PreProcessors"
-        Else
-            Call Me.deviceHeaderParams_.insertValue(key, value)
-        End If
-		'}}
-
-	End Sub
-
-
-	%REM
-		Sub addSessionAttribute 
-		Adds a session attribute for the Foundry session object.
-	
-		@param	key 	Key for the session attribute
-
-		@param	value 	Value for the session attribute
-
-	%END REM
-	Public Sub addSessionAttribute(key As String, value As Variant) 
-		'{{SETI_AUTHOR_CODE_addSessionAttribute_implementation
-        Call Me.sessionAttributes_.insertValue(key, value)
-		'}}
-
-	End Sub
-
-
-	%REM
-		Sub addInputParam 
-		Adds an input parameter for the Foundry integration service. This is only relevant for preprocessors.
-	
-		@param	key 	Key for the input parameter
-
-		@param	value 	Value for the input parameter
-
-		@throws	Adding input parameters is only relevant for PreProcessors 	
-	%END REM
-	Public Sub addInputParam(key As String, value As Variant) 
-		'{{SETI_AUTHOR_CODE_addInputParam_implementation
-        If Not Me.isPreProcessor Then
-            Error 1001, "Adding input parameters is only relevant for PreProcessors"
-        Else
-            Call Me.inputParams_.insertValue(key, value)
-        End If
-		'}}
-
-	End Sub
-
-
-	%REM
-		Sub addDebugMessage 
-		Adds a message to be debugged from Foundry's Java logger.
-	
-		@param	message 	Message to debug
-
-	%END REM
-	Public Sub addDebugMessage(message As String) 
-		'{{SETI_AUTHOR_CODE_addDebugMessage_implementation
-        Call debugMessages_.appendToJsonArray(message)
+		
+		Set foundryWriter_ = New FoundryLogWriter()
+        Call globalLogSession.addLogWriter(foundryWriter_)
 		'}}
 
 	End Sub
@@ -1033,31 +909,105 @@ Public Class VoltMxResultObject
 
 
 	%REM
-		Sub echoUnitTestContext 
-		Copies the incoming unit test context for VoltScript HTTP server into the result, the unitTestContext element outputed by setting "vsTestingContext":true in integration services.
+		Sub addHeaderParam 
+		Adds a header param to the Foundry response.
 	
+		@param	key 	Key for the Foundry response parameter
+
+		@param	value 	Value for the Foundry response parameter
+
+		@throws	Adding header parameters is not relevant for PreProcessors 	
 	%END REM
-	Public Sub echoUnitTestContext() 
-		'{{SETI_AUTHOR_CODE_echoUnitTestContext_implementation
-		Call Me.result.insertValue("unitTestContext", passedCtx)
+	Public Sub addHeaderParam(key As String, value As Variant) 
+		'{{SETI_AUTHOR_CODE_addHeaderParam_implementation
+        If Me.isPreProcessor Then
+            Error 1001, "Adding response header parameters is not relevant for PreProcessors"
+        Else
+            Call Me.headerParams_.insertValue(key, value)
+        End If
 		'}}
 
 	End Sub
 
 
 	%REM
-		Sub echoHttpServerContext 
-		Copies the incoming unit test context for VoltScript HTTP server into the result, the unitTestContext element outputed by setting "vsTestingContext":true in integration services.
+		Sub addSessionAttribute 
+		Adds a session attribute for the Foundry session object.
 	
+		@param	key 	Key for the session attribute
+
+		@param	value 	Value for the session attribute
+
 	%END REM
-	Public Sub echoHttpServerContext() 
-		'{{SETI_AUTHOR_CODE_echoHttpServerContext_implementation
-		Dim jsonObj as New JsonObject()
-		Call jsonObj.insertValue("context", passedCtx)
-		If (VoltMxRequest.getIdentityParam != "") Then
-			Call jsonObj.insertValue("jwttoken", VoltMxRequest.getIdentityParam)
-		End If
-		Call Me.result.insertValue("httpServerContext", jsonObj)
+	Public Sub addSessionAttribute(key As String, value As Variant) 
+		'{{SETI_AUTHOR_CODE_addSessionAttribute_implementation
+        Call Me.sessionAttributes_.insertValue(key, value)
+		'}}
+
+	End Sub
+
+
+	%REM
+		Sub addDeviceHeaderParam 
+		Adds a device header parameter for the Foundry response.
+	
+		@param	key 	Key of the device header parameter
+
+		@param	value 	String value for the device header parameter
+
+		@throws	Adding response device header parameters is not relevant for PreProcessors 	
+	%END REM
+	Public Sub addDeviceHeaderParam(key As String, value As String) 
+		'{{SETI_AUTHOR_CODE_addDeviceHeaderParam_implementation
+        If Me.isPreProcessor Then
+            Error 1001, "Adding response device header parameters is not relevant for PreProcessors"
+        Else
+            Call Me.deviceHeaderParams_.insertValue(key, value)
+        End If
+		'}}
+
+	End Sub
+
+
+	%REM
+		Sub addRequestParam 
+		Adds a request parameter to the Foundry request. Only relevant for preprocessors.
+	
+		@param	key 	Key for the request parameter
+
+		@param	value 	Value for the request parameter
+
+		@throws	Adding request parameters is only relevant for PreProcessors 	
+	%END REM
+	Public Sub addRequestParam(key As String, value As Variant) 
+		'{{SETI_AUTHOR_CODE_addRequestParam_implementation
+        If Not Me.isPreProcessor Then
+            Error 1001, "Adding request parameters is only relevant for PreProcessors"
+        Else
+            Call Me.requestParams_.insertValue(key, value)
+        End If
+		'}}
+
+	End Sub
+
+
+	%REM
+		Sub addInputParam 
+		Adds an input parameter for the Foundry integration service. This is only relevant for preprocessors.
+	
+		@param	key 	Key for the input parameter
+
+		@param	value 	Value for the input parameter
+
+		@throws	Adding input parameters is only relevant for PreProcessors 	
+	%END REM
+	Public Sub addInputParam(key As String, value As Variant) 
+		'{{SETI_AUTHOR_CODE_addInputParam_implementation
+        If Not Me.isPreProcessor Then
+            Error 1001, "Adding input parameters is only relevant for PreProcessors"
+        Else
+            Call Me.inputParams_.insertValue(key, value)
+        End If
 		'}}
 
 	End Sub
@@ -1079,7 +1029,8 @@ Public Class VoltMxResultObject
         Call jsonObj.insertValue("headerParams", Me.headerParams_)
 		Call jsonObj.insertValue("deviceHeaderParams", Me.deviceHeaderParams_)
         Call jsonObj.insertValue("result", me.result_)
-        Call jsonObj.insertValue("debugMessages", Me.debugMessages_)
+        Call jsonObj.insertValue("debugMessages", Me.foundryWriter_.convertToJson())
+		Call globalLogSession.removeLogWriter(Me.foundryWriter_)
         Call jsonObj.insertValue("errorMessage", Me.error_)
         Return jsonObj
 		'}}
@@ -1182,6 +1133,54 @@ Public Class VoltMxSessionObject
 
 End Class 
 '{{SETI_AUTHOR_CODE_VoltMXObjects_Private_Classes
+Private Class FoundryLogWriter as BaseLogWriter
+
+	Sub New(), BaseLogWriter("FoundryLogWriter", LOG_TRACE, LOG_FATAL, "[{{LIBRARYNAME}}:{{METHODNAME}}:{{LINENUM}}] {{MESSAGE}}")
+		
+	End Sub
+
+	Public Function convertToJson() As JsonObject 
+		'{{SETI_AUTHOR_CODE_writeToLog_implementation
+
+		If (Me.maxLevel = NO_LOGGING) Then Return False
+
+		Dim temp as LogEntry
+		Dim filteredEntries as Variant
+		Dim jsonObj as New JsonObject(True)
+		Dim childObj as JsonObject
+		Dim message as String
+		Dim i as Long
+
+		filteredEntries = globalLogSession.getLogEntriesByLevel(Me.minLevel, Me.maxLevel)
+		If (IsEmpty(filteredEntries)) Then Return jsonObj
+		
+		For i = 0 To Ubound(filteredEntries)
+			Set temp = filteredEntries(i)
+			message = convertLogEntryToMessage(temp)
+			Set childObj = new JsonObject(False)
+			Call childObj.insertValue("level", temp.level)
+			Call childObj.insertValue("message", message)
+			Call childObj.insertValue("stackTrace", temp.getPropertyValue("STACKTRACE_COMPACT"))
+			Call jsonObj.appendToJsonArray(childObj)
+		Next
+		Return jsonObj
+		'}}
+
+	End Function
+
+	Public Function writeToLog(session as LogSession) as Boolean
+		Try
+			Call session.removeLogWriter(Me)
+		Catch
+			
+		End Try
+	End Function
+
+	Public Sub Delete()
+		Return
+	End Sub
+
+End Class
 '}}
 
 
@@ -1196,7 +1195,6 @@ End Class
 Public Sub extractObjects(data As String, isPreprocessor As Boolean) 
 	'{{SETI_AUTHOR_CODE_extractObjects_implementation
     Set VoltMXResult = New VoltMxResultObject(isPreprocessor)
-    Set VoltMxLogger = New VoltMxLoggerObject(VoltMxResult)
     Dim jsonParser as New JsonParser()
     Dim jsonObj as JsonObject
     Dim passedObj as JsonObject
@@ -1212,7 +1210,7 @@ Public Sub extractObjects(data As String, isPreprocessor As Boolean)
             Set passedObj = New JsonObject()
         End If
 
-        Call VoltMxResult.loadFromjson(passedObj)
+        Call VoltMxResult.loadFromJson(passedObj)
 		Set passedCtx = jsonObj
 
         If (jsonObj.isChild(SESSION_PARAM)) Then
@@ -1252,7 +1250,7 @@ Public Sub extractObjects(data As String, isPreprocessor As Boolean)
     Catch
         Error 400, getErrorMsg("EXTRACTOBJECTS: ")
     End Try
-	
+
 	'}}
 
 End Sub
@@ -1318,7 +1316,7 @@ Public Function jsonSort(dataObj As JsonObject, lbl1 As String, lbl1Desc As Bool
             lbl2Desc = lbl3Desc
             lbl3 = ""
         End IF
-        
+
         ' the jsonSortlabels class is defined below.  This class is used to store the labels, sort orders, and delimiter.
         Call jlabelobj.SetLabels(lbl1, lbl1Desc, lbl2, lbl2Desc, lbl3, lbl3Desc, delim)
         Set compar = New jsonComparator(false, jlabelobj)
@@ -1327,10 +1325,10 @@ Public Function jsonSort(dataObj As JsonObject, lbl1 As String, lbl1Desc As Bool
 
         Set jarr = new JsonObject(True)
 
-        Forall child in dataObj.getChildren()
+        ForAll child in dataObj.getChildren()
             Set cobj = child
             Call col.add(cobj)
-        End Forall
+        End ForAll
 
         Do
             Set jobj = col.getNthElementRaw(i)
@@ -1355,7 +1353,6 @@ Private Function wrapEmpty(incoming as Variant) as Variant
         Return incoming
     End If
 
-	'}}
-
 End Function
 
+'}}
