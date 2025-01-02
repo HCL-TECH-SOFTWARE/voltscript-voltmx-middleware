@@ -11,6 +11,7 @@ internal-atlas.json
 #VS Code
 .devcontainer/*
 .vscode/*
+!.vscode/settings.json
 
 #gh-pages
 site/*
