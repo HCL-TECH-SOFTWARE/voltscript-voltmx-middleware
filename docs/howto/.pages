@@ -9,4 +9,5 @@ nav:
     - session.md
     - return-content.md
     - voltmxresponse.md
+    - logging.md
     - testable.md

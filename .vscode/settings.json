@@ -1,5 +1,6 @@
 {
     "cSpell.words": [
+        "autonumber",
         "cobj",
         "complabels",
         "EXTRACTOBJECTS",
@@ -12,11 +13,15 @@
         "KCOOKIE",
         "LIBRARYNAME",
         "LINENUM",
+        "linenums",
         "METHODNAME",
+        "MXOP",
         "opstatus",
         "outputed",
         "postprocessors",
+        "Repointing",
         "rint",
+        "seti",
         "sobj",
         "Sortlabels",
         "srcobj",
@@ -24,8 +29,12 @@
         "tgtobj",
         "tgtval",
         "tobj",
+        "vbscript",
+        "voltmx",
         "VOLTMXREQUEST",
         "VOLTMXRESPONSE",
+        "VOLTSCRIPT",
+        "vses",
         "VSID"
     ]
 }

@@ -55,8 +55,8 @@ markdown_extensions:
   - pymdownx.tabbed:
       alternate_style: true
   - pymdownx.emoji:
-      emoji_index: !!python/name:materialx.emoji.twemoji
-      emoji_generator: !!python/name:materialx.emoji.to_svg
+      emoji_index: !!python/name:material.extensions.emoji.twemoji
+      emoji_generator: !!python/name:material.extensions.emoji.to_svg
   - pymdownx.highlight:
       anchor_linenums: true
   - pymdownx.inlinehilite
@@ -96,8 +96,6 @@ extra:
 repo_url: https://github.com/HCL-TECH-SOFTWARE/voltscript-voltmx-middleware/
 repo_name: HCL-TECH-SOFTWARE/voltscript-voltmx-middleware
 edit_uri: edit/main/docs
-
-use_directory_urls: false
 
 # Customization
 extra_css:

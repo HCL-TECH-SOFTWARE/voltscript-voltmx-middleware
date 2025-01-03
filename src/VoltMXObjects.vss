@@ -1135,7 +1135,7 @@ End Class
 '{{SETI_AUTHOR_CODE_VoltMXObjects_Private_Classes
 Private Class FoundryLogWriter as BaseLogWriter
 
-	Sub New(), BaseLogWriter("FoundryLogWriter", LOG_TRACE, LOG_FATAL, "[{{LIBRARYNAME}}:{{METHODNAME}}:{{LINENUM}}] {{MESSAGE}}")
+	Sub New(), BaseLogWriter("FoundryLogWriter", LOG_TRACE, LOG_FATAL, "[{{LIBRARYNAME}}:{{CLASSNAME}}:{{METHODNAME}}:{{LINENUM}}] {{MESSAGE}}")
 		
 	End Sub
 
