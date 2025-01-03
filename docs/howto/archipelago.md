@@ -21,9 +21,9 @@ You'll need a [Personal Access Token](https://help.hcltechsw.com/docs/voltscript
         "authUrl": "https://accounts.auth.hclvoltmx.net/login"
     }
 ```
+
 !!!tip
     Hard-coding your Personal Access Token in the atlas-settings.json file works well for initial setup and testing, but is **not recommended** for production.  The recommended method is to store your Personal Access Token as an environment variable, and then reference that variable using the **${env.VARIABLE_NAME}** pattern as demonstrated below
-
 
 ```json
 "hcl-github": {
@@ -31,7 +31,6 @@ You'll need a [Personal Access Token](https://help.hcltechsw.com/docs/voltscript
     "token": "${env.TOKEN}"
 }
 ```
-
 
 ## Repository
 

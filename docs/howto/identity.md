@@ -16,4 +16,4 @@ server.serverURL = "http://localhost:8080/api/v1/"
 
 ## Other backends
 
-For other backends, you will need to extract the token from the identity service manually. This can be done with `VoltMxRequest.getidentityParam()`.
+For other backends, you will need to extract the token from the identity service manually. This can be done with `VoltMxRequest.getIdentityParam()`.

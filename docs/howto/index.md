@@ -11,4 +11,5 @@ How-to guides instruct users in completing key goals and tasks relative to VoltS
 - [Session attributes](session.md)
 - [Return content](return-content.md)
 - [Retrieve metadata from external REST service](voltmxresponse.md)
+- [Add logging](logging.md)
 - [Write testable code](testable.md)

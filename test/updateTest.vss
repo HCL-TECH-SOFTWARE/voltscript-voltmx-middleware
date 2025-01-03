@@ -121,7 +121,7 @@ Function testLoggerSession(testRunner as TestRunner) as Boolean
 
     Call testSuite.describe("Test adding logging message")
     Try
-        Call VoltMxLogger.debug("Test message")
+        Call globalLogSession.createLogEntry(LOG_INFO, "Test message", "", Nothing)
         Call testSuite.addResult(True, "")
     Catch
         Call testSuite.addError("Error adding log message", Error())
@@ -129,18 +129,7 @@ Function testLoggerSession(testRunner as TestRunner) as Boolean
     Set outputJson = VoltMxResult.toJson()
     Call testSuite.describe("Verify log message added to result").assertTrue(outputJson.isChild("debugMessages"))
     Call testSuite.describe("Verify a debug messages added").assertEqualsInteger(1, outputJson.getChild("debugMessages").childCount)
-    Call testSuite.describe("Verify log message value").assertEqualsString("Test message", CStr(outputJson.getChild("debugMessages").getChildren()(0).scalarValue), True)
-    
-    Call testSuite.describe("Test adding logging message to result")
-    Try
-        Call VoltMxResult.addDebugMessage("Test result message")
-        Call testSuite.addResult(True, "")
-    Catch
-        Call testSuite.addError("Error adding log message", Error())
-    End Try
-    Set outputJson = VoltMxResult.toJson()
-    Call testSuite.describe("Verify two debug messages added").assertEqualsInteger(2, outputJson.getChild("debugMessages").childCount)
-    Call testSuite.describe("Verify log message value").assertEqualsString("Test result message", CStr(outputJson.getChild("debugMessages").getChildren()(1).scalarValue), True)
+    Call testSuite.describe("Verify log message value").assertTrue(CStr(outputJson.getChild("debugMessages").getChildren()(0).toString(False)) Like "*Test message*")
 
     Call testSuite.describe("Testing adding error message")
     Try

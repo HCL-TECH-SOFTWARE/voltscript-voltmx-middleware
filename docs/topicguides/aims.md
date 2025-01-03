@@ -9,5 +9,5 @@
     - HTTP request parameters and all request parameters that are part of the Foundry HTTP request
     - HTTP response headers and device headers
 
-- Provides access to the Volt MX Logger object for writing debug messages to the Volt MX Foundry application logs.
+- Integrate Volt MX Logging seamlessly with the normal Volt MX Foundry logging.
 - Utilizes [VoltMX Result Object](../references/apidoc/VoltMXObjects_VSID/VoltMXObjects_Library/VoltMxResultObject_ObjectClass.html){: target="_blank" rel="noopener noreferrer"} for updating the Volt MX Foundry objects.

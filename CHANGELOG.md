@@ -1,6 +1,10 @@
 # CHANGELOG
 
-## [1.0.4] - 2024-09-23
+## [1.0.5] - Unreleased
+
+- MXOP-23281 Integration with VoltScript Logging
+
+## [1.0.4] - 2024-09-23
 
 - MXOP-15323 Repointing atlas.json to use VSE title and filename as library and module
 
