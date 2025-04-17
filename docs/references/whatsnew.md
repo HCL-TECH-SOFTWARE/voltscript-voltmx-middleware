@@ -11,6 +11,7 @@ The section provides information on the latest features, improvements, and resol
     ## v1.0.4
     **Improvements**
     - <span style="color:red">Integration with VoltScript Logging</span>
+    - <span style="color:red">Repointing atlas.json to demo marketplace. atlas-settings marketplace url will need updating to "https://accounts.auth.demo-hclvoltmx.net/login".</span>
 
 ???+ info "v1.0.4 - What's new or changed"
 

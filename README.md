@@ -26,7 +26,7 @@ You'll then need to add this to the JSON object in your [atlas-settings.json](ht
         "type": "marketplace",
         "username": "YOUR_USERNAME",
         "password": "YOUR_PASSWORD",
-        "authUrl": "https://accounts.auth.hclvoltmx.net/login"
+        "authUrl": "https://accounts.auth.demo-hclvoltmx.net/login"
     }
 ```
 
@@ -49,7 +49,7 @@ You'll need the relevant dependency to add to your **dependencies** or **testDep
 ```json
         {
             "library": "voltscript-voltmx-middleware",
-            "version": "1.0.2",
+            "version": "1.0.5",
             "module": "VoltMXObjects.vss",
             "repository": "hcl-github"
         }
@@ -74,7 +74,7 @@ The return output should be a JSON object **and only the JSON object**. This sho
 
 See [CONTRIBUTING.md](contributing.md).
 
-## Code of Conduct
+## Code of Conduct
 
 See [CODE_OF_CONDUCT.md](code_of_conduct.md).
 

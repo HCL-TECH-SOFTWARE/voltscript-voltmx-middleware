@@ -16,16 +16,19 @@ To manage the content coming from Foundry, there are various dependencies:
 - **VoltScript Testing** is only a dependency for unit testing of the framework and isn't a runtime dependency.
 
 ---
+
 ## What's new
 
 For the latest release information about VoltScript Volt MX Middleware, see [What's new](references/whatsnew.md).
 
 ---
+
 ## Using via dependency management
 
 For using with dependency management, see [Use dependency management](howto/archipelago.md).
 
 ---
+
 ## How the documentation is organized
 
 The documentation is based on the [Diátaxis framework](https://diataxis.fr/){: target="_blank" rel="noopener noreferrer”}, which organizes documentation into the following modes to address users' documentation needs at different times and in different circumstances. Below shows an overview that guides you on where to look for needed information:

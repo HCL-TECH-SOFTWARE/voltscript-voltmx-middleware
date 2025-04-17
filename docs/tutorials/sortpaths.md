@@ -1,17 +1,20 @@
 # JSON Sort - Using Label Paths
 
 ## Prerequisites
+
 1. Download the VoltScript-Json-Sort repository from GitHub
 1. Set up your VS Code environment including running Archipelago - Install Dependencies to ensure you have all of the necessary dependencies available (completed in The Basics tutorial)
 1. Basic understanding of VoltScript and Json object structure
 1. **Completed Sort Basics Tutorial**
 
 ## Objectives
+
 1. Build on knowledge gained in JSON Sort - The Basics tutorial
 1. Understand how to use label paths to sort on nested JSON objects
 1. Learn how to use `jsonObject.isDescendantPath()` and `jsonObject.getDescendantPath()`
 
 ## Introduction
+
 In The Basics tutorial we built a working example using jsonSort(), and used "first level" labels to sort our example JSON array. But what if your JSON array has a "nested" object, similar to the example below - and you want to sort on the City and State?
 
 ```JSON
@@ -31,9 +34,11 @@ In The Basics tutorial we built a working example using jsonSort(), and used "fi
         }
     }
 ```
+
 That's where *label paths* come in. jsonSort() has the ability for you to provide a delimited "path" to the label on which you wish to sort. And the JsonObject class has methods to help you access these label path values. Let's take a look...
 
 ## Before we begin
+
 We're going to build upon the work we did in The Basics tutorial. If you didn't actually complete the tutorial, here's the completed code from it - assuming you've already set up your VS Code environment and loaded the necessary files, simply copy this code and paste it into VS Code.
 
 ???example "Completed JSON Sort - The Basics Example"
@@ -129,6 +134,7 @@ We're going to build upon the work we did in The Basics tutorial. If you didn't 
     ```
 
 ## Change the file path and labels
+
 The first thing we need to do is change the file path to point to our new JSON data file. After that, let's modify the labels we use for the sort to use paths. We also need to specify the *delimiter* we're using to separate the parts of the label path - in this case we're using a forward slash (`/`).
 
 !!! Note
@@ -141,6 +147,7 @@ The first thing we need to do is change the file path to point to our new JSON d
 1. Create a new string variable called `delim`, and set it to a forward slash (`/`)
 
 The beginning of your code should now look something like this...
+
 ```vbscript
     Dim parser as New JsonParser()
     Dim dataobj as New JsonObject(true)
@@ -165,6 +172,7 @@ The beginning of your code should now look something like this...
 ```
 
 ## Verifying and retrieving label path values
+
 In our Basics code we used `jsonObject.isChild()` and `jsonObject.getChild()` to verify and retrieve label values; however these calls only work for first-level labels. In order for us to access values from a label path, we need to use different calls - `jsonObject.isDescendantPath()` and `jsonObject.getDescendantPath()`.
 
 !!! Note
@@ -203,6 +211,7 @@ And each of the label code blocks should look like this:
 ```
 
 ### One more thing to fix
+
 The last small change we need to make is the example printout labels. Change the Print line from this:
 
 ```vbscript
@@ -216,9 +225,10 @@ To this:
 ```
 
 ## Test our code
+
 Now let's take a look at our results. With your cursor in your code, type CTRL + F5, and hit ENTER. You should get results like this:
 
-```
+```bash
 count: 100
 company: *empty*, state: California, city: Salinas
 company: *empty*, state: California, city: San Jose
@@ -242,7 +252,7 @@ Just to make sure some values are being returned for `company`, let's reverse th
 
 Now when we run our code, we get this:
 
-```
+```bash
 count: 100
 company: Zooxo, state: California, city: San Francisco
 company: Zoonder, state: New York, city: Flushing     
@@ -257,6 +267,7 @@ company: Yakidoo, state: Georgia, city: Atlanta
 ```
 
 ## Conclusion
+
 Now you have a basic understanding of how `jsonSort()` can be used to easily and quickly sort your array of JSON objects, up to three levels deep, and even with nested JSON objects using label paths.
 
 For reference, here is the completed code for this Tutorial:

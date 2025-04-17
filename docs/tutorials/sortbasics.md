@@ -1,16 +1,19 @@
 # JSON Sort - The Basics
 
 ## Prerequisites
+
 1. Download the VoltScript-Json-Sort repository from GitHub
 1. Set up your VS Code environment including running Archipelago - Install Dependencies to ensure you have all of the necessary dependencies available (high level instructions below)
 1. Basic understanding of VoltScript and Json object structure
 
 ## Objectives
+
 1. Gain experience working with VoltScript in the Visual Studio Code environment
 1. Learn about working with VoltScript Extensions - specifically JsonVSE
 1. Gain familiarity with using jsonSort() to sort an array of JSON objects
 
 ## Project setup
+
 1. Ensure your atlas-settings.json is set up with authentication for Volt MX Marketplace and github.com
 1. Create a folder for the project.
 1. Create an atlas.json and complete mandatory elements. Set `sourceDir` to **"src"**, `libsDir` to **"libs"** and `vsesDir` to **"vses"**.
@@ -34,11 +37,13 @@
             "repository": "hcl-github"
         }
     ```
+
 1. Save the atlas.json and ensure no validation errors.
 1. Run dependency management (CTRL + SHIFT + P / Cmd + SHIFT + P and choose "VoltScript: Install Dependencies").
 1. Ensure **libs** contains "VoltScriptCollections" and **vses** contains the JsonVSE extensions.
 
 ## Script setup
+
 1. Create a VoltScript file in **src** directory called `jsonSortTutorial.vss`.
 1. Add `Option Public` and `Option Declare`.
 1. Add a USE statement to point to your VotScriptJsonSort.vss library. If you're using this doc repository, then `Use "VoltScriptJsonSort"` (omit the .vss extension) should work.
@@ -47,6 +52,7 @@
     The VoltScriptJsonSort library uses the JsonVSE extension, which means that functionality is available for loading and working with Json files and objects.
 
 ## Load the example JSON file
+
 1. Create a Sub Initialize() sub
 1. Add a JsonParser object (parser) and a Json data object (dataObj) - these will be used to load our example JSON file into memory as an array of Json objects
 1. Add a String variable to hold our file path to our example JSON file (`TEST_DATA1.json`)
@@ -77,6 +83,7 @@
 1. Let's run our code and make sure our JSON file loaded correctly by seeing what count we get. With your cursor in the Initialize() sub, type CTRL+F5, and hit ENTER. A Terminal window will appear at the bottom of VS Code, and you should see where your code was called, and `COUNT: 100` was returned.
 
 ## Set up the Sort Labels
+
 Now that we have our example JSON file loaded into memory, let's set up our labels for sorting. JsonSort() allows you to sort your array of JSON objects up two three levels deep. So, if you open and take a look at `TEST_DATA1.JSON` you'll notice that the JSON objects are basically a contact list. So, let's say that we want to sort first on STATE, then CITY, and finally COMPANY.
 
 1. Begin by adding a String array variable with three elements to hold our sort labels. Using this array will make it easier to read, and easier for us to change the labels around later. Let's call this string array `labels()`
@@ -98,6 +105,7 @@ Now our TRY block should look something like this...
     ```
 
 ## Sort the JSON Array using jsonSort()
+
 We're ready to sort our array. Now the signature for the `jsonSort()` function is as follows:
 
 ```vbscript
@@ -133,9 +141,11 @@ Now let's add jsonSort() to our code.
 Now that we have it sorted, let's add some code to print out a sample size of our sorted array, to make sure it worked.
 
 ## Print a sample of the output
+
 We can print out a subset of our sorted JSON object array to make sure it worked correctly. Let's build a loop with a preset number of records that we would like to print out.
 
 ### Set up the variables
+
 Let's begin by setting up the variables we'll need for this loop. They include:
 
 * `results()` - a String array of three elements to hold our results
@@ -155,9 +165,11 @@ Your updated variable declarations should look something like this:
     Dim tmpobj as JsonObject
     Dim rvar as Variant, i as Integer, z as Integer
 ```
+
 Now that we have our variables declared, let's begin building our output loop.
 
 ### Build the output loop
+
 We're going to use a Forall loop to print a sample of our sorted JSON object array. Within this look we need to do the following *for each label*:
 
 * Check to make sure there's a label available
@@ -261,5 +273,3 @@ Now, that's a lot of stuff to consider. Given the size of this, here's an exampl
             End Try
         End Sub
     ```
-
-

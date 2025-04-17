@@ -18,7 +18,7 @@ You'll need a [Personal Access Token](https://help.hcltechsw.com/docs/voltscript
         "type": "marketplace",
         "username": "YOUR_USERNAME",
         "password": "YOUR_PASSWORD",
-        "authUrl": "https://accounts.auth.hclvoltmx.net/login"
+        "authUrl": "https://accounts.auth.demo-hclvoltmx.net/login"
     }
 ```
 
@@ -51,7 +51,7 @@ You'll need to add the following relevant dependency to your **dependencies** ob
 ```json
         {
             "library": "voltscript-voltmx-middleware",
-            "version": "1.0.2",
+            "version": "1.0.5",
             "module": "VoltMXObjects.vss",
             "repository": "hcl-github"
         }
