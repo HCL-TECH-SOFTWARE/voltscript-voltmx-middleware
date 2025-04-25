@@ -1,6 +1,6 @@
 # CHANGELOG
 
-## [1.0.5] - 2025-05-12
+## [1.0.5] - March 2025
 
 - MXOP-25899 Changing marketplace URLs
 - MXOP-23281 Integration with VoltScript Logging
