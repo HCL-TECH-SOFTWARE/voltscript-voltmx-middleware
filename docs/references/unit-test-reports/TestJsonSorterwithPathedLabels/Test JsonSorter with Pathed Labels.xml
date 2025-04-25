@@ -1,5 +1,5 @@
-<?xml version="1.0" encoding="UTF-8"?><testrun name="Test JsonSorter with Pathed Labels" tests="3" time="240718T104350" failures="0" errors="0">
-  <testsuite name="Test jsonSort() Functionality with Pathed Labels" time="1" displayname="Test jsonSort() Functionality with Pathed Labels" id="[engine:testsuite-voltscript]/[Test jsonSort() Functionality with Pathed Labels]">
+<?xml version="1.0" encoding="UTF-8"?><testrun name="Test JsonSorter with Pathed Labels" tests="3" time="250425T111700" failures="0" errors="0">
+  <testsuite name="Test jsonSort() Functionality with Pathed Labels" time="0" displayname="Test jsonSort() Functionality with Pathed Labels" id="[engine:testsuite-voltscript]/[Test jsonSort() Functionality with Pathed Labels]">
     <testcase name="jsonSort with Paths Ascending" classname="Test jsonSort() Functionality with Pathed Labels" time="0" displayname="jsonSort with Paths Ascending" id="[engine:testsuite-voltscript]/[Test jsonSort() Functionality with Pathed Labels]/[jsonSort with Paths Ascending]">
     </testcase>
     <testcase name="jsonSort with Paths Descending" classname="Test jsonSort() Functionality with Pathed Labels" time="0" displayname="jsonSort with Paths Descending" id="[engine:testsuite-voltscript]/[Test jsonSort() Functionality with Pathed Labels]/[jsonSort with Paths Descending]">

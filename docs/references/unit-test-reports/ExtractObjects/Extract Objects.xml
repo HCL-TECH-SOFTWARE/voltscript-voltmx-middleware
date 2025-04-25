@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="UTF-8"?><testrun name="Extract Objects" tests="38" time="240718T104347" failures="0" errors="0">
+<?xml version="1.0" encoding="UTF-8"?><testrun name="Extract Objects" tests="38" time="250425T111659" failures="0" errors="0">
   <testsuite name="Failed Extraction Tests" time="0" displayname="Failed Extraction Tests" id="[engine:testsuite-voltscript]/[Failed Extraction Tests]">
     <testcase name="Extraction with bad JSON throws error" classname="Failed Extraction Tests" time="0" displayname="Extraction with bad JSON throws error" id="[engine:testsuite-voltscript]/[Failed Extraction Tests]/[Extraction with bad JSON throws error]">
     </testcase>
