@@ -1,15 +1,3 @@
-		'{{SETI_AUTHOR_CODE_terminateLog_implementation
-		'}}
-		'{{SETI_AUTHOR_CODE_outputLogEntryMessage_implementation
-		'}}
-		'{{SETI_AUTHOR_CODE_initializeLog_implementation
-		'}}
-		'{{SETI_AUTHOR_CODE_New_implementation
-		'}}
-	'{{SETI_AUTHOR_CODE_FoundryLogWriter_Private_Variables
-	'}}
-	'{{SETI_AUTHOR_CODE_FoundryLogWriter_Private_Properties
-	'}}
 %REM
 	Library VoltMXObjects 
 
@@ -44,11 +32,6 @@ UseVSE "*JsonVSE"
 UseVSE "*ContextVSE"
 
 
-
-	'{{SETI_AUTHOR_CODE_VoltMxLogger_Private_Methods
-	'}} 
-	'{{SETI_AUTHOR_CODE_FoundryLogWriter_Private_Methods
-	'}} 
 '{{SETI_AUTHOR_CODE_VoltMXObjects_Private_Constants
 Private Const IS_PREPROCESSOR_PARAM = "isPreprocessor"
 Private Const RESULT_PARAM = "result"
@@ -82,45 +65,6 @@ Private passedCtx as New JsonObject()
 '}}
 
 
-
-%REM
-	Class HttpCookie 
-	Class to hold properties of a HTTP Cookie for easy handling. Not implemented yet.
- 
-%END REM
-Public Class HttpCookie 
-
-	'{{Variables
-	Public path As String 	 ' Path element of the cookie.
-	Public name As String 	 ' Name element of the cookie.
-	Public value As String 	 ' Value element of the cookie.
-	Public domain As String 	 ' Domain element of the cookie.
-	Public isSecure As Boolean 	 ' Whether or not the cookie is secure.
-	Public expiryDate As String 	 ' Expiry date element of the cookie.
-	Public persistent As Boolean 	 ' Boolean value for whether or not the cookie persists.
-	'}}
-
-	'{{SETI_AUTHOR_CODE_HttpCookie_Private_Variables
-	'}}
-
-	'{{SETI_AUTHOR_CODE_HttpCookie_Private_Properties
-	'}}
-
-
-	%REM
-		Sub New 
-
-	%END REM
-	Public Sub New() 
-		'{{SETI_AUTHOR_CODE_New_implementation
-		'}}
-
-	End Sub
-
-	'{{SETI_AUTHOR_CODE_HttpCookie_Private_Methods
-	'}} 
-
-End Class 
 
 
 %REM
