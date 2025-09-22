@@ -1,11 +1,11 @@
 # References
 
 References provide technical references and descriptions for using VoltScript Volt MX Middleware.
-
+<!--
 ## What's new
 
 Check the [latest information](whatsnew.md) about VoltScript Volt MX Middleware.
-
+-->
 ## Repository structure
 
 - All the required code itself is in the VoltScript files in `src` directory.
@@ -31,8 +31,7 @@ List of [frequently asked questions](FAQs.md) related to VoltScript Volt MX Midd
 ## Documentation and source code
 
 - [HCL Volt MX Go Documentation](https://opensource.hcltechsw.com/voltmxgo-documentation/index.html){: target="blank"}
-- VoltScript
-    - [Documentation](https://help.hcltechsw.com/docs/voltscript/early-access/index.html){: target="_blank" rel="noopener noreferrer"}
+- [VoltScript](https://opensource.hcltechsw.com/voltscript-docs/index.html){: target="_blank" rel="noopener noreferrer"}
 - VoltScript Testing Framework
     - [Documentation](https://opensource.hcltechsw.com/voltscript-testing){: target="_blank" rel="noopener noreferrer"}
     - [Source code](https://github.com/HCL-TECH-SOFTWARE/voltscript-testing){: target="_blank" rel="noopener noreferrer"}
@@ -52,4 +51,4 @@ List of [frequently asked questions](FAQs.md) related to VoltScript Volt MX Midd
 
 ## Support
 
-To share information, ask questions, and learn about VoltScript Volt MX Middleware, go to the [Community](https://support.hcltechsw.com/community?id=community_forum&sys_id=999cdacbdb82ed9055f38d6d13961961){: target="_blank" rel="noopener noreferrer"}.
+To share information, ask questions, and learn about VoltScript Volt MX Middleware, go to the [Community](https://developer.ds.hcl-software.com/){: target="_blank" rel="noopener noreferrer"}.

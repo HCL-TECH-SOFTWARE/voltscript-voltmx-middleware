@@ -24,7 +24,7 @@ If you want to get involved in a role (including ones we may have missed!) reach
 
 ## Development Environment
 
-- Develop code with Visual Studio Code and VoltScript extensions, see https://help.hcltechsw.com/docs/voltscript/early-access/howto/writing/index.html.
+- Develop code with Visual Studio Code and VoltScript extensions, see https://opensource.hcltechsw.com/voltscript-docs/howto/writing/index.html.
 - For new classes, methods, variables etc:
     - Add to VSID
     - Actions > Generate > Library Code Stubs, point to the base directory of the repo. It will automatically add to src directory.
